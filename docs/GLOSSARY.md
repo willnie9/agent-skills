@@ -9,7 +9,7 @@
 | `.claude/skills/` | Claude 技能目录 | 所有 skill 的根目录,Claude 启动时自动加载 |
 | `README.md` | 体系说明 | 给开发者看的「这套 skill 是什么、怎么用」 |
 | `STATUS.md` | 状态总览 | 版本矩阵 / 工具脚本清单 / 改进历史 |
-| `WORKFLOW.md` | 流程指南 | 6 个场景的详尽步骤(用 jdz 项目作演示) |
+| `WORKFLOW.md` | 流程指南 | 6 个场景的详尽步骤(用 my-project 项目作演示) |
 | `GLOSSARY.md` | 术语表(本文件) | 中英文含义对照 |
 | `RETROSPECTIVE.md` | 复盘/心得 | 整个 skill 体系演进的得失 + 踩坑 |
 | `project.config.json` | 项目级共享配置 | 各 skill 读这份了解项目结构(viewsDir/cacheDir/HTTP 客户端等) |

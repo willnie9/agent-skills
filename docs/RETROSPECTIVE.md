@@ -14,7 +14,7 @@
 | ④ 场景重设 | 砍 3/4/5(单组件/看看/token diff) → 用户加回 3/4/5(增量/迭代/重构) |
 | ⑤ 入口固化 | 5 选 1 + 第二问 + 是否 auto,三步固定到 SKILL.md |
 | ⑥ 二次裁剪 | yapi-to-code 4 个低价值 references 砍掉,WORKFLOW.md 重写 |
-| ⑦ 通用化清洗 | 全部 jdz 项目特定内容改成 `<占位>`,准备开源 |
+| ⑦ 通用化清洗 | 全部 my-project 项目特定内容改成 `<占位>`,准备开源 |
 
 ---
 
@@ -56,7 +56,7 @@
 
 ### 5️⃣ "项目隔离"理解错位
 
-**问题**:大费周章建 `project.config.json`,但 references / scripts 里还残留大量 jdz 项目特定内容。
+**问题**:大费周章建 `project.config.json`,但 references / scripts 里还残留大量 my-project 项目特定内容。
 
 **用户反馈**:"你有病啊?所有的 skill 里面的所有子文件是否还有这些包含项目的 skill 吗?"
 
@@ -126,7 +126,7 @@ auto 不是"瞎跑"而是"跳确认但保留 4 个必停点":
 
 ### 2. 通用性从一开始考虑
 
-不要"先写 jdz 特定的再说"。**一开始就用 `<占位>`,实际值走 config**。
+不要"先写 my-project 特定的再说"。**一开始就用 `<占位>`,实际值走 config**。
 
 ### 3. 机制 > 文字
 
@@ -228,7 +228,7 @@ SKILL.md 写"flow 产 tests/agent/results/<id>.json",但实际 runner.spec.ts �
 - 坚持"一次做好"的迭代观
 - 让最终产物能真正开源
 
-这套 skill 体系本来是 jdz 项目特定的工具,现在可以扔到任何前端项目改 `project.config.json` 几行配置就能用。
+这套 skill 体系本来是 my-project 项目特定的工具,现在可以扔到任何前端项目改 `project.config.json` 几行配置就能用。
 
 ---
 

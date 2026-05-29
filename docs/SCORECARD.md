@@ -19,11 +19,11 @@
 |---|---|---|
 | skill 自包含(不依赖项目) | A | 脚本/依赖/node_modules 全在 skill 内 |
 | 项目结构走配置 | A | project.config.json 集中,SKILL.md 全占位 |
-| references / scripts 去硬编码 | A | 全部清洗完,0 处 jdz 业务名残留 |
-| WORKFLOW.md 演示用 jdz | B | 顶部声明"演示用",但完全清洗会更彻底 |
+| references / scripts 去硬编码 | A | 全部清洗完,0 处 my-project 业务名残留 |
+| WORKFLOW.md 演示用 my-project | B | 顶部声明"演示用",但完全清洗会更彻底 |
 | 跨项目可移植 | A | 拿到 Vue 项目改 config 几行就能用 |
 
-**扣分点**:WORKFLOW.md 保留了 jdz 演示(已声明,但严格说还有耦合)。
+**扣分点**:WORKFLOW.md 保留了 my-project 演示(已声明,但严格说还有耦合)。
 
 ---
 
@@ -133,7 +133,7 @@
 - 但 references 多,token 消耗大
 - 经常要"读多个文件"才能干一件事
 
-### 给项目实战(jdz 这边):**B**
+### 给项目实战(my-project 这边):**B**
 
 - 设计完整但未实战
 - 真跑可能暴露:e2e 定位失败率 / DSL 精修准确率 / playwright flow 通用性
@@ -182,7 +182,7 @@
 
 ### 优化 4 · WORKFLOW.md 彻底通用化(通用性 +5)
 
-把"演示用 jdz"的部分也改成通用占位。代价:可读性下降。
+把"演示用 my-project"的部分也改成通用占位。代价:可读性下降。
 
 ### 优化 5 · 多 bug 并行回写改串行(自动化稳定性 +5)
 
