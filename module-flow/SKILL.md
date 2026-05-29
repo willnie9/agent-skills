@@ -399,19 +399,19 @@ git commit -m "feat(<module>): ..."
 
 ## Changelog
 
-### v2.2.0 (2026-05-15)
+### v1.0.0 (2026-05-15)
 - 新增 **Auto Mode**:关键词 `auto / yolo / 全跑 / 别问` 触发无确认模式
 - auto 模式自动决策 module/pagePath/imgDir + 模糊搜接口,跳过所有检查点
 - 保留 4 个必停点(MCP/Git/YApi 缺/精修错)
 
-### v2.1.0 (2026-05-15)
+### v1.0.0 (2026-05-15)
 - 全面去硬编码,产物路径改读 `.claude/skills/project.config.json`
 - Step 1 引入 _shared/lib/parse-urls.mjs
 - Step 4 引入 check-resume-state.mjs 可恢复执行
 - Step 5 引入 _shared/lib/report-generator.mjs
 
-### v2.0.0 (2026-05-13)
-- 大厂风格重构:SKILL.md 压缩 72%,拆 references/
+### v1.0.0 (2026-05-13)
+- 工程化规范重构:SKILL.md 压缩 72%,拆 references/
 - 新增 schemas/task-input.schema.json(任务指令硬契约)
 
 ### v1.0.0 (2026-05-13)

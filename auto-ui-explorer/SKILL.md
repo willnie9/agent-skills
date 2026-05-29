@@ -783,7 +783,7 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 
 ## Changelog
 
-### v6.0.0 (2026-05-29)
+### v1.0.0 (2026-05-29)
 - **★ 新增测试模式选择**：`mock` / `real-api` 两种模式，入口必选，贯穿全流程
 - **★ 新增 Step 0.9 API 对接审计**：在生成测试用例前审计接口对接现状（参数完整性、Mock 拦截覆盖、YApi 对接率）
 - **★ 新增 Step 7 完成自检**：所有 Step 完成后必须逐项确认，禁止虚报"测试完成"
@@ -798,7 +798,7 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 - **★ 反模式新增 7 条**
 - 上下游契约新增 `testMode` / `yapiCatUrl` 输入字段和 `apiAuditPath` / `dataIntegrity` 输出字段
 
-### v5.0.0 (2026-05-29)
+### v1.0.0 (2026-05-29)
 - 新增 **Auto Mode**：关键词触发无确认模式，跳 Step 3 检查点
 - 新增 `schemas/ui-dictionary.schema.json` — 词典输出硬契约
 - 新增 `scripts/validate-dictionary.mjs` — Step 1 产物校验（退出码 0/1/2）
@@ -809,18 +809,18 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 - 铁律从 7 条扩展到 8 条（新增"Gate 不可跳"）
 - 上下游契约新增 `auto` 输入字段和 `validation` 输出字段
 
-### v4.1.0 (2026-05-29)
+### v1.0.0 (2026-05-29)
 - 新增 `config/auto-ui-explorer.config.json` 配置化噪音黑名单和组件类型
 - 新增 `references/` 子文档
 - `analyze-module.mjs` 升级：支持修饰符/路由/规则/选项提取
 - 新增中断恢复机制
 
-### v4.0.0 (2026-05-29)
+### v1.0.0 (2026-05-29)
 - 彻底重构 Step 2：JSON + 源码交叉校验六小步精修流程
 - 新增失败分类标签体系
 - 新增 Step 6 标准化测试报告模板
 
-### v3.0.0 (2026-05-29)
+### v1.0.0 (2026-05-29)
 - 确立四步编排法，脚本升级为目录级扫盘
 
 ### v1.0.0 (2026-05-29)

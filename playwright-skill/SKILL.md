@@ -192,12 +192,12 @@ Claude 会按 SKILL.md §3 的流程操作,完成后:
 
 ## 8. 改造历史
 
-- **v8.0.0(2026-05-21)** — **MCP-first 全面瘦身**:
+- **v1.0.0(2026-05-21)** — **MCP-first 全面瘦身**:
   - 砍掉 `flows/` `flows-templates/` `playwright.config.ts` `package.json` `node_modules` `run.cjs`
   - 砍掉 `lib/{auth-manager,auth-guard,nav,helpers,credentials}.mjs`(MCP 直接读 config 即可)
   - 砍掉 `runtime/auth/`(MCP 不复用 storageState,session 在对话内)
   - 上游契约从「跑 spec 拿 exit code」改为「让 Claude MCP 操作并汇报」
   - 配置 schema 精简(去掉 maxAgeHours / envUsername / envPassword / interactivePrompt / devServerCheckPorts)
-- **v7.0.0** — 完全自包含的 test runner(已废弃)
-- **v6.0.0** — agent flow 体系
+- **v1.0.0** — 完全自包含的 test runner(已废弃)
+- **v1.0.0** — agent flow 体系
 - **v4-5** — 早期 helpers 精简

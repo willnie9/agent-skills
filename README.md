@@ -1,12 +1,12 @@
 # Claude Code Skills · 前端 SaaS 项目通用 skill 体系
 
-本目录是项目的"能力包"集合,大厂风格(v2.0.0 重构)。每个 skill 是一个**独立的工程级流水线**:SKILL.md 简短决策树 + references/ 详细规范 + schemas/ 硬契约 + scripts/ 校验脚本。
+本目录是项目的"能力包"集合,工程化规范(v1.0.0 重构)。每个 skill 是一个**独立的工程级流水线**:SKILL.md 简短决策树 + references/ 详细规范 + schemas/ 硬契约 + scripts/ 校验脚本。
 
 ## 体系全景图
 
 ```
                     ┌──────────────────────────────────────┐
-                    │  module-flow (v2.0.0)·总调度器         │
+                    │  module-flow (v1.0.0)·总调度器         │
                     │  解析任务指令 → 编排 A→B→C→D            │
                     └──────────────────────────────────────┘
                               │       │       │       │
@@ -14,7 +14,7 @@
                               ▼       ▼       ▼       ▼
               ┌──────────────────┐  ┌─────────────┐  ┌──────────────────────┐  ┌──────────────────┐
               │ master-go-to-code│  │yapi-to-code │  │frontend-page-design │  │playwright-skill  │
-              │     v2.0.0       │  │   v2.0.0    │  │      v2.0.0          │  │     v5.1.0       │
+              │     v1.0.0       │  │   v1.0.0    │  │      v1.0.0          │  │     v1.0.0       │
               │                  │  │             │  │                      │  │                  │
               │ MasterGo URL     │  │ YApi URL    │  │ dom-tree.json +     │  │ skill flows/     │
               │  → DSL → dom-tree│  │  → define.ts│  │  define.ts/api.ts   │  │  自包含 v7+      │
@@ -26,12 +26,12 @@
                               ⬇️ 通过 _shared/schemas + scripts 硬契约校验 ⬇️
 
               ┌──────────────────────────────────────────────────┐
-              │  yunxiao-bug-fix (v3.1.1)·业务 SOP                │
+              │  yunxiao-bug-fix (v1.0.0)·业务 SOP                │
               │  云效 Bug 全生命周期,Step 4 可委托上面任一 skill │
               └──────────────────────────────────────────────────┘
 ```
 
-## 大厂风格目录约定(v2.0.0)
+## 工程化目录约定(v1.0.0)
 
 每个 skill 是独立目录:
 
@@ -47,20 +47,20 @@
     └── *.mjs
 ```
 
-## Skill 清单(v2.0.0 大厂风格)
+## Skill 清单(v1.0.0 工程化规范)
 
 | Skill | 版本 | 行数(SKILL.md) | references | schemas | scripts |
 |-------|------|------|---|---|---|
-| [module-flow](./module-flow/SKILL.md) | v2.0.0 | 177 | 6 个 | 1 个 | - |
-| [master-go-to-code](./master-go-to-code/SKILL.md) | v2.0.0 | 142 | 4 个 | 2 个 | 1 个 ✅ |
-| [yapi-to-code](./yapi-to-code/SKILL.md) | v2.0.0 | 157 | 5 个 | - | - |
-| [frontend-page-design](./frontend-page-design/SKILL.md) | v2.0.0 | 210 | 6 个 | - | - |
-| [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | 200+ | - | 1 (config) | 仅 config + SKILL.md |
-| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.1.1 | 612 | - | - | - |
+| [module-flow](./module-flow/SKILL.md) | v1.0.0 | 177 | 6 个 | 1 个 | - |
+| [master-go-to-code](./master-go-to-code/SKILL.md) | v1.0.0 | 142 | 4 个 | 2 个 | 1 个 ✅ |
+| [yapi-to-code](./yapi-to-code/SKILL.md) | v1.0.0 | 157 | 5 个 | - | - |
+| [frontend-page-design](./frontend-page-design/SKILL.md) | v1.0.0 | 210 | 6 个 | - | - |
+| [playwright-skill](./playwright-skill/SKILL.md) | v1.0.0 | 200+ | - | 1 (config) | 仅 config + SKILL.md |
+| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v1.0.0 | 612 | - | - | - |
 
 **说明**:
 - playwright-skill 和 yunxiao-bug-fix 已是实战派 SOP 风格,行数合理,本次未重构
-- 4 个新 skill 全部从"教科书风格"(平均 550 行) → 大厂风格(平均 170 行,压缩 70%)
+- 4 个新 skill 全部从"教科书风格"(平均 550 行) → 工程化规范(平均 170 行,压缩 70%)
 
 ## _shared 共享层
 
@@ -140,7 +140,7 @@ _shared/
 
 - **2026-05-13 初版**:6 个 skill 协同,引入 module-flow
 - **2026-05-13 优化版**:补 12 项 P0/P1/P2,加 Changelog,docs/STATUS.md
-- **2026-05-13 v2.0.0 大厂风格重构**:压缩主 SKILL.md → 100-200 行,拆 references/schemas/scripts,建 _shared 共享层
+- **2026-05-13 v1.0.0 工程化规范重构**:压缩主 SKILL.md → 100-200 行,拆 references/schemas/scripts,建 _shared 共享层
 
 ## 借鉴的官方/社区实践
 

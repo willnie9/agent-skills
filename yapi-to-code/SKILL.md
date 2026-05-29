@@ -214,13 +214,13 @@ node .claude/skills/yapi-to-code/scripts/validate-define.mjs \
 
 ## Changelog
 
-### v2.1.0 (2026-05-15)
+### v1.0.0 (2026-05-15)
 - 项目结构全面去硬编码,改读 `.claude/skills/project.config.json`
 - Step 4 加入 validate-define.mjs 校验
 - Step 1 拆为 1.0/1.1/1.2 三种入口
 
-### v2.0.0 (2026-05-13)
-- 大厂风格重构:SKILL.md 压缩 80%,拆 references/
+### v1.0.0 (2026-05-13)
+- 工程化规范重构:SKILL.md 压缩 80%,拆 references/
 
 ### v1.0.0 (2026-05-13)
 - 初版

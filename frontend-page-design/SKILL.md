@@ -248,12 +248,12 @@ node .claude/skills/frontend-page-design/scripts/stage-c-finalize.mjs <module> <
 
 ## Changelog
 
-### v2.1.0 (2026-05-15)
+### v1.0.0 (2026-05-15)
 - 项目结构全面去硬编码,改读 `.claude/skills/project.config.json`
 - Step 9 加入 scan-perm-todos.mjs 扫描占位
 
-### v2.0.0 (2026-05-13)
-- 大厂风格重构:SKILL.md 压缩 70%,拆 references/
+### v1.0.0 (2026-05-13)
+- 工程化规范重构:SKILL.md 压缩 70%,拆 references/
 
 ### v1.0.0 (2026-05-13)
 - 初版
