@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/skills/_shared/module-code.schema.json",
+  "title": "MODULE_CODE 权限编码",
+  "description": "src/cache/role/define.ts 的 MODULE_CODE 枚举常量,frontend-page-design 注册路由/菜单时用。新模块未分配前用 WORKBENCH 兜底 + TODO(perm) 注释。",
+  "type": "string",
+  "pattern": "^[A-Z][A-Z0-9_]*$",
+  "examples": [
+    "WORKBENCH",
+    "PRIVATE_SEA_CUSTOMER_VIEWABLE",
+    "PRIVATE_SEA_CUSTOMER_MY_FOLLOWED",
+    "IN_HOSPITAL_SERVICE_LIFE",
+    "TASK_MANAGE",
+    "SYSTEM_MANAGE"
+  ],
+  "placeholder_policy": {
+    "default_fallback": "WORKBENCH",
+    "required_comment_pattern": "TODO\\(perm\\):",
+    "find_command": "grep -rn 'TODO(perm)' src/"
+  }
+}

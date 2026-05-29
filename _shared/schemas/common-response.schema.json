@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/skills/_shared/common-response.schema.json",
+  "title": "项目共用响应壳",
+  "description": "src/cache/base/define.ts 中的 CommonResponse / CommonDataResponse / PaginationDataList。所有接口响应必须符合二者之一。",
+  "oneOf": [
+    { "$ref": "#/definitions/CommonResponse" },
+    { "$ref": "#/definitions/CommonDataResponse" }
+  ],
+  "definitions": {
+    "CommonResponse": {
+      "type": "object",
+      "required": ["code", "result", "msg"],
+      "not": { "required": ["data"] },
+      "additionalProperties": true,
+      "properties": {
+        "code": { "type": "number" },
+        "result": {},
+        "msg": { "type": "string" },
+        "err": { "type": "string" },
+        "success": { "type": "boolean" }
+      }
+    },
+    "CommonDataResponse": {
+      "type": "object",
+      "required": ["code", "data", "msg"],
+      "not": { "required": ["result"] },
+      "additionalProperties": true,
+      "properties": {
+        "code": { "type": "number" },
+        "data": {},
+        "msg": { "type": "string" },
+        "err": { "type": "string" },
+        "errdata": {
+          "type": "object",
+          "properties": { "reason": { "type": "string" } }
+        },
+        "assignLimit": { "type": "number" },
+        "success": { "type": "boolean" }
+      }
+    },
+    "PaginationDataList": {
+      "type": "object",
+      "required": ["list", "total"],
+      "properties": {
+        "list": { "type": "array" },
+        "total": { "type": "number" }
+      }
+    }
+  }
+}

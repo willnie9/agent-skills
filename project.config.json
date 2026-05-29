@@ -1,0 +1,68 @@
+{
+  "$schema": "./schemas/project-config.schema.json",
+  "_description": "项目级配置:让所有 skill 通过这份配置了解项目结构,避免在 SKILL.md 写死",
+  "_usage": "SKILL.md 里用 <config.xxx> 占位代替项目硬编码。Step 0 自检阶段优先读本文件,缺字段才回退到 grep 探测。",
+  "project": {
+    "name": "your-project-name",
+    "displayName": "Your Project Name",
+    "framework": "vue3",
+    "uiLib": "element-plus",
+    "buildTool": "vite",
+    "packageManager": "pnpm"
+  },
+  "structure": {
+    "viewsDir": "src/views",
+    "cacheDir": "src/cache",
+    "hooksDir": "src/hooks",
+    "componentsDir": "src/components",
+    "routerDir": "src/router",
+    "routerFiles": [
+      "src/router/pages.ts",
+      "src/router/routers.ts"
+    ],
+    "routerModuleFilePattern": "src/router/<module>Router.ts",
+    "menuFile": "src/components/layout/menu/useMenu.ts",
+    "imgDirBase": "src/assets/images",
+    "envFile": ".env"
+  },
+  "conventions": {
+    "responseWrappers": ["CommonResponse", "CommonDataResponse"],
+    "httpClient": "ApiJson",
+    "httpClientFile": "src/cache/base/api.ts",
+    "commonTypesFile": "src/cache/base/define.ts",
+    "routerMode": "hash",
+    "routerModeNote": "createWebHashHistory: URL 含 /#/, history: 不含",
+    "interfaceFileNaming": {
+      "types": "define.ts",
+      "api": "api.ts",
+      "mock": "mock.ts"
+    }
+  },
+  "commonComponents": {
+    "table": "CustomTable",
+    "buttonClasses": {
+      "primary": "custom-btn-style-confirm",
+      "secondary": "custom-btn-style-cancel"
+    },
+    "dialogWrapperPattern": "<module>-dialog-wrapper"
+  },
+  "referencePages": {
+    "_description": "新建模块时 frontend-page-design Step 1 拿来当风格参考的项目同类页面",
+    "crudList": "src/views/customerManage/Index.vue",
+    "detailDrawer": "src/views/customerManage/components/DetailDrawer.vue",
+    "formDialog": "src/views/customerManage/components/AddCustomerDialog.vue"
+  },
+  "permission": {
+    "moduleCodeStrategy": "borrow",
+    "moduleCodeStrategyNote": "borrow=借用相近模块兜底常量并加 TODO(perm) 注释。等后端正式分配后扫描 scan-perm-todos.mjs 批量替换",
+    "todoTag": "TODO(perm):"
+  },
+  "mastergoOutput": {
+    "_description": "master-go-to-code 中间产物目录(默认 skill 自身下的 output/,跨项目复用 skill 时不污染项目根。可被环境变量 MASTERGO_OUT_DIR 覆盖。设为 null 走 skill 默认值)",
+    "outDir": null
+  },
+  "test": {
+    "_description": "playwright-skill v7+ 已完全自包含,所有 playwright 配置走 .claude/skills/playwright-skill/config/playwright-skill.config.json,本字段不再使用,保留为空只为兼容旧引用",
+    "_migrated_to": ".claude/skills/playwright-skill/config/playwright-skill.config.json"
+  }
+}

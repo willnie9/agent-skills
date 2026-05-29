@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/skills/master-go-to-code/svg-paths.schema.json",
+  "title": "svg-paths.json",
+  "description": "Master-Go-to-Code Step 1 提取的 SVG path 数据。key 是 DSL 节点 ID,value 是该节点的所有 path。",
+  "type": "object",
+  "patternProperties": {
+    "^[0-9]+:[0-9a-f]{6}$": {
+      "type": "array",
+      "description": "节点 ID(格式:数字:6位hex)对应的 path 数组",
+      "items": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "SVG path 的 d 属性值,如 'M13.2212 0C13.5243...'"
+          },
+          "fill": {
+            "type": "string",
+            "description": "填充色,纯色十六进制或渐变 CSS 字符串(渲染层自动转 <linearGradient>)"
+          },
+          "stroke": { "type": "string" },
+          "stroke-width": { "type": ["string", "number"] },
+          "fill-rule": { "type": "string" },
+          "opacity": { "type": ["string", "number"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "74:000340": [
+        {
+          "fill": "#366EF4",
+          "data": "M13.2212 0C13.5243..."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "_description": "DSL 字段 → CSS 翻译规则集. refine-dom-tree.py 读这份文件,新加规则改本文件不改脚本.",
+  "_version": 1,
+  "_source": "dsl-issues.md (持续维护)",
+
+  "layout": {
+    "comment": "Phase 1: 布局偏移",
+    "use_flex_when": "父节点有 flexContainerInfo",
+    "flex_field_map": {
+      "flexDirection": "flex-direction",
+      "justifyContent": "justify-content",
+      "alignItems": "align-items",
+      "gap": "gap"
+    },
+    "padding_inference": {
+      "comment": "父用 flex 时,从子节点 relativeX/Y 推 padding",
+      "rule": "padding-left = min(子.relativeX); padding-top = min(子.relativeY); padding-right = 父.width - max(子.relativeX + 子.width); padding-bottom = 父.height - max(子.relativeY + 子.height)"
+    },
+    "absolute_fallback": {
+      "comment": "父无 flexContainerInfo 且子节点位置不规律时",
+      "rule": "父 position:relative; 子 position:absolute; left = relativeX; top = relativeY"
+    },
+    "constraints_map": {
+      "RIGHT": "right = 父.width - relativeX - 自身.width",
+      "BOTTOM": "bottom = 父.height - relativeY - 自身.height",
+      "CENTER": "left: 50%; transform: translateX(-50%)"
+    }
+  },
+
+  "effect": {
+    "comment": "Phase 2: 阴影/模糊",
+    "DROP_SHADOW": "box-shadow: {offsetX}px {offsetY}px {blur}px {spread}px {color}",
+    "LAYER_BLUR": "filter: blur({radius}px)",
+    "BACKGROUND_BLUR": "backdrop-filter: blur({radius}px)"
+  },
+
+  "fill": {
+    "comment": "Phase 2: 填充",
+    "SOLID": "background: {color}",
+    "GRADIENT_LINEAR": "background: linear-gradient({angle}deg, {stops})",
+    "GRADIENT_RADIAL": "background: radial-gradient({stops})",
+    "IMAGE": "background-image: url({src}); background-size: cover"
+  },
+
+  "font": {
+    "comment": "Phase 3: 文字精修",
+    "family": "font-family: '{family}', sans-serif",
+    "size": "font-size: {size}px",
+    "lineHeight": {
+      "auto": "(不输出)",
+      "*": "line-height: {value}"
+    },
+    "letterSpacing": {
+      "auto": "(不输出)",
+      "*": "letter-spacing: {value}"
+    },
+    "decoration": {
+      "underline": "text-decoration: underline",
+      "line-through": "text-decoration: line-through",
+      "none": "(不输出)"
+    },
+    "case": {
+      "upper": "text-transform: uppercase",
+      "lower": "text-transform: lowercase",
+      "title": "text-transform: capitalize",
+      "none": "(不输出)"
+    }
+  },
+
+  "node_attrs": {
+    "comment": "节点级属性",
+    "opacity": {
+      "rule": "opacity: {value}",
+      "skip_when": "value >= 1 或 value < 0.001"
+    },
+    "rotation": {
+      "rule": "transform: rotate({value}deg)",
+      "skip_when": "value == 0"
+    },
+    "mask_alpha": {
+      "rule": "父容器 overflow:hidden + 父继承 border-radius"
+    }
+  },
+
+  "stroke": {
+    "comment": "边框",
+    "default": "border: {strokeWidth} solid {strokeColor}",
+    "strokeAlign": {
+      "inside": "box-sizing: border-box",
+      "outside": "outline 替代 border",
+      "center": "(默认)"
+    }
+  },
+
+  "border_radius": {
+    "uniform": "border-radius: {value}",
+    "per_corner": {
+      "topLeft": "border-top-left-radius",
+      "topRight": "border-top-right-radius",
+      "bottomLeft": "border-bottom-left-radius",
+      "bottomRight": "border-bottom-right-radius"
+    }
+  },
+
+  "widget_dict": {
+    "comment": "MasterGo componentInfo.类型 → 项目组件名,可按项目扩展",
+    "输入框": "el-input",
+    "选择框": "el-select",
+    "筛选和内容页主按钮": "el-button:primary",
+    "筛选和内容页辅助按钮": "el-button:default",
+    "工作台": "el-button:primary",
+    "箭头": "icon-arrow"
+  },
+
+  "name_dict": {
+    "comment": "node.name 命中字典 → 业务语义,按项目扩展",
+    "操作": "table-cell-actions",
+    "普通列": "table-cell-text",
+    "标题": "table-header-cell",
+    "查看详情": "btn:link:detail",
+    "重新分配": "btn:link:reassign",
+    "批量删除": "btn:link:batch-delete",
+    "components/pagination-item": "el-pagination-item",
+    "showTotal": "el-pagination-total"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/skills/master-go-to-code/dom-tree-v1.schema.json",
+  "title": "dom-tree.v1.json",
+  "description": "Master-Go-to-Code Step 2 精修产出的 DOM 树结构契约。被 frontend-page-design 消费前必须通过校验。",
+  "type": "object",
+  "required": ["tag", "attrs"],
+  "additionalProperties": false,
+  "properties": {
+    "tag": {
+      "type": "string",
+      "enum": ["div", "span", "img", "svg", "path"],
+      "description": "HTML 标签:FRAME/GROUP/INSTANCE→div,TEXT→span,图片fill→img,矢量→svg+path"
+    },
+    "attrs": {
+      "type": "object",
+      "description": "属性集合",
+      "properties": {
+        "id": { "type": "string" },
+        "data-name": {
+          "type": "string",
+          "description": "语义化名称(span 节点用)或 svgRef:节点ID(SVG 引用)"
+        },
+        "src": {
+          "type": "string",
+          "pattern": "^@/assets/",
+          "description": "img 节点的图片路径,必须用 @/assets/ Vite alias,禁止 CDN 或相对路径"
+        },
+        "viewBox": { "type": "string" },
+        "width": { "type": ["string", "number"] },
+        "height": { "type": ["string", "number"] },
+        "fill": { "type": "string" },
+        "d": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "style": {
+      "type": "object",
+      "description": "kebab-case CSS 属性,数值为整数 px",
+      "patternProperties": {
+        "^[a-z-]+$": {
+          "type": ["string", "number"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "text": {
+      "type": "string",
+      "description": "仅 span 节点有"
+    },
+    "children": {
+      "type": "array",
+      "items": { "$ref": "#" },
+      "description": "递归子节点"
+    }
+  },
+  "examples": [
+    {
+      "tag": "div",
+      "attrs": { "data-name": "统计卡片" },
+      "style": {
+        "display": "flex",
+        "flex-direction": "column",
+        "padding": "20px",
+        "background": "#fff",
+        "border-radius": "16px"
+      },
+      "children": [
+        {
+          "tag": "span",
+          "attrs": { "data-name": "数字" },
+          "style": { "font-size": "32px", "color": "#233a6d" },
+          "text": "128"
+        }
+      ]
+    }
+  ]
+}

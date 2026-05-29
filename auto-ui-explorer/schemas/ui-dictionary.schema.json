@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UI Dictionary",
+  "description": "auto-ui-explorer Step 1 脚本产物的硬契约。validate-dictionary.mjs 用此 schema 校验。",
+  "type": "object",
+  "required": ["entry", "routesAndFiles", "noiseFilesFiltered", "buttons", "dialogs", "formInputs", "routerPushCalls", "formRules"],
+  "properties": {
+    "entry": {
+      "type": "string",
+      "description": "扫描入口路径"
+    },
+    "config": {
+      "type": "string",
+      "description": "使用的配置文件路径"
+    },
+    "routesAndFiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "扫到的所有 Vue 文件路径（去噪后）"
+    },
+    "noiseFilesFiltered": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "被噪音黑名单过滤掉的文件"
+    },
+    "buttons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "tag", "action", "eventBinding"],
+        "properties": {
+          "source": { "type": "string" },
+          "tag": { "type": "string" },
+          "type": { "type": "string" },
+          "action": { "type": "string" },
+          "eventBinding": { "type": "string" }
+        }
+      }
+    },
+    "dialogs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "tag", "title", "isDynamicTitle"],
+        "properties": {
+          "source": { "type": "string" },
+          "tag": { "type": "string", "enum": ["el-dialog", "el-drawer"] },
+          "title": { "type": "string" },
+          "isDynamicTitle": { "type": "boolean" },
+          "model": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "formInputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "label", "type"],
+        "properties": {
+          "source": { "type": "string" },
+          "label": { "type": "string" },
+          "prop": { "type": ["string", "null"] },
+          "type": { "type": "string" },
+          "placeholder": { "type": "string" },
+          "required": { "type": "boolean" },
+          "optionsBinding": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "routerPushCalls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "method", "target"],
+        "properties": {
+          "source": { "type": "string" },
+          "method": { "type": "string", "enum": ["push", "replace"] },
+          "target": { "type": "string" }
+        }
+      }
+    },
+    "formRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "prop", "required"],
+        "properties": {
+          "source": { "type": "string" },
+          "prop": { "type": "string" },
+          "required": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

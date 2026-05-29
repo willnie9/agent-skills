@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "stage-report.schema.json",
+  "title": "Stage Report 统一格式",
+  "description": "每个 skill 在 stage 完成后落盘的报告,被 _shared/lib/stage-gate.mjs 消费,module-flow 通过 verdict 决定继续/阻断",
+  "type": "object",
+  "required": ["stage", "skill", "timestamp", "verdict"],
+  "properties": {
+    "stage": {
+      "type": "string",
+      "description": "Stage 标识,如 'A' / 'B' / 'C' / 'A.recall' / 'D' / 'bug-fix'"
+    },
+    "skill": {
+      "type": "string",
+      "description": "产此报告的 skill,如 'master-go-to-code' / 'yapi-to-code'"
+    },
+    "module": {
+      "type": "string",
+      "description": "模块名(camelCase),如 '<myModule>';独立 bug 流程用 bug-id"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 时间戳"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["pass", "warn", "fail"],
+      "description": "pass=完全通过;warn=有问题但可继续(auto 模式不阻断);fail=必须停"
+    },
+    "summary": {
+      "type": "object",
+      "description": "skill 特定的汇总指标,如 token-diff 的 keyMissing 数 / vue-tsc 错误数 / smoke pass 数",
+      "additionalProperties": true
+    },
+    "issues": {
+      "type": "array",
+      "description": "待人工处理的问题清单",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "description": "permission/icon/mock/style/api/..." },
+          "location": { "type": "string", "description": "文件:行号 或 字段路径" },
+          "todo": { "type": "string", "description": "下一步该干啥" }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "本 stage 产出的关键文件路径(供下游 stage gate 检查)",
+      "properties": {
+        "new": { "type": "array", "items": { "type": "string" } },
+        "modified": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

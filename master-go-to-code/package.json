@@ -1,0 +1,15 @@
+{
+  "name": "master-go-to-code-skill",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MasterGo 设计稿 → dom-tree.json 脚本依赖（skill 自包含，不依赖项目）",
+  "devDependencies": {
+    "sharp": "^0.33.0"
+  },
+  "optionalDependencies": {
+    "_comment": "仅 compare-pixel.mjs 像素级对比时需要。识图能力受限,默认不装。要用时跑 npm install pixelmatch pngjs",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
+  }
+}

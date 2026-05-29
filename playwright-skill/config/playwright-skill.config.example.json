@@ -1,0 +1,36 @@
+{
+  "$schema": "./playwright-skill.config.schema.json",
+  "_comment": "playwright-skill MCP-first 配置示例。复制为 playwright-skill.config.json 后改值即生效。skill 不带 test runner,Claude 用 MCP playwright 工具按本配置操作。",
+  "auth": {
+    "_comment": "auth.required=true 时 Claude MCP 操作前先看是否在登录页,是则按 selectors + credentialsFile 登录。false 时跳过登录直接操作。",
+    "required": true,
+    "credentialsFile": "credentials.local.json",
+    "selectors": {
+      "loginPagePath": "/#/login",
+      "username": "input[placeholder=\"请输入登录账号\"]",
+      "password": "input[placeholder=\"请输入密码\"]",
+      "submit": "button:has-text(\"登录\")"
+    },
+    "successCheck": {
+      "text": "欢迎回来",
+      "timeoutMs": 20000
+    },
+    "orgSelectDialog": {
+      "_comment": "本字段可选。本项目登录后可能弹机构选择,enabled=true 时 Claude 自动点第一个并确认。其它项目无此弹窗时设 enabled:false 或整段删除。",
+      "enabled": true,
+      "dialogSelector": ".el-dialog:has-text(\"选择要登录的机构\"), .el-dialog:has-text(\"机构\")",
+      "itemSelector": ".el-radio, [class*=\"company\"], button, .el-table__row",
+      "confirmSelector": "button:has-text(\"确认\"), button:has-text(\"确定\")"
+    }
+  },
+  "runtime": {
+    "baseURL": "http://localhost:5173",
+    "routingMode": "hash",
+    "homePath": "/#/home",
+    "loginUrlPatterns": [
+      "/login",
+      "/#/login",
+      "/Login"
+    ]
+  }
+}

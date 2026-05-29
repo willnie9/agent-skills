@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "playwright-skill 运行配置(MCP-first)",
+  "description": "playwright-skill 配置。skill 不再带 test runner,所有浏览器操作走 MCP playwright 工具(browser_navigate / browser_snapshot / browser_click 等),由对话里的 Claude 边看 snapshot 边操作。本 config 给 Claude 当登录 / 导航 playbook 用。",
+  "type": "object",
+  "required": ["auth", "runtime"],
+  "additionalProperties": false,
+  "properties": {
+    "auth": {
+      "type": "object",
+      "description": "登录态配置。auth.required=true 时,Claude 在 MCP 操作前先看页面是不是登录页,是就用本节里的 selector + 凭证文件登录。required=false 时跳过登录直接操作。",
+      "required": ["required"],
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "description": "是否需要登录。false 时所有 MCP 操作直接进站,不走登录(适合无登录页 / 公开站)。"
+        },
+        "credentialsFile": {
+          "type": "string",
+          "default": "credentials.local.json",
+          "description": "凭证文件相对 skill config 目录的路径。文件结构 {username, password},gitignore。"
+        },
+        "selectors": {
+          "type": "object",
+          "description": "登录页 DOM 选择器。Claude 看 snapshot 优先用 ref;ref 找不到再 fallback 用这里的 CSS selector。",
+          "required": ["loginPagePath", "username", "password", "submit"],
+          "additionalProperties": false,
+          "properties": {
+            "loginPagePath": { "type": "string", "description": "登录页路径,如 /login 或 /#/login。" },
+            "username": { "type": "string", "description": "用户名输入框 selector。" },
+            "password": { "type": "string", "description": "密码输入框 selector。" },
+            "submit": { "type": "string", "description": "登录按钮 selector。" }
+          }
+        },
+        "successCheck": {
+          "type": "object",
+          "description": "登录成功的页面识别。Claude 用 browser_wait_for 等这段文本出现来判断登录成功。",
+          "additionalProperties": false,
+          "properties": {
+            "text": { "type": "string", "description": "登录成功后页面应出现的文本。" },
+            "timeoutMs": { "type": "number", "default": 20000, "description": "等待超时。" }
+          }
+        },
+        "orgSelectDialog": {
+          "type": "object",
+          "description": "可选:多机构选择弹窗(部分 SaaS 登录后会弹)。enabled=true 时 Claude 自动点第一项再确认。",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "dialogSelector": { "type": "string" },
+            "itemSelector": { "type": "string", "description": "弹窗中可点击项的 selector,默认点第一个。" },
+            "confirmSelector": { "type": "string" }
+          }
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "description": "运行时配置:目标站点 / 路由模式 / 失效判定。",
+      "required": ["baseURL", "routingMode"],
+      "additionalProperties": false,
+      "properties": {
+        "baseURL": {
+          "type": "string",
+          "description": "目标站 baseURL,如 http://localhost:5173。"
+        },
+        "routingMode": {
+          "type": "string",
+          "enum": ["hash", "history"],
+          "description": "前端路由模式。hash → URL 含 /#/,history → 不含。"
+        },
+        "homePath": {
+          "type": "string",
+          "default": "/",
+          "description": "首页路径(MCP 导航起点)。hash 模式建议 /#/home。"
+        },
+        "loginUrlPatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["/login", "/#/login", "/Login"],
+          "description": "判定登录页的 URL 模式。Claude 检测到当前 URL 命中则视为登录态失效,触发重登。"
+        }
+      }
+    }
+  }
+}

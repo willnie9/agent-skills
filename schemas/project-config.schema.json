@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "project-config.schema.json",
+  "title": "Skills 项目级共享配置",
+  "description": "让所有 skill 通过这份配置了解项目结构、约定、参考页等",
+  "type": "object",
+  "required": ["project", "structure", "conventions"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "required": ["name", "framework"],
+      "properties": {
+        "name": { "type": "string" },
+        "displayName": { "type": "string" },
+        "framework": { "type": "string", "enum": ["vue3", "vue2", "react", "other"] },
+        "uiLib": { "type": "string" },
+        "buildTool": { "type": "string" },
+        "packageManager": { "type": "string" }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "required": ["viewsDir", "cacheDir", "routerFiles"],
+      "properties": {
+        "viewsDir": { "type": "string", "description": "视图目录,如 src/views" },
+        "cacheDir": { "type": "string", "description": "接口/类型目录,如 src/cache" },
+        "hooksDir": { "type": "string" },
+        "componentsDir": { "type": "string" },
+        "routerDir": { "type": "string" },
+        "routerFiles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "需要同步注册路由的文件列表"
+        },
+        "routerModuleFilePattern": {
+          "type": "string",
+          "description": "模块路由文件命名,占位符 <module>"
+        },
+        "menuFile": { "type": "string" },
+        "imgDirBase": { "type": "string", "description": "图片资源根目录" },
+        "envFile": { "type": "string" }
+      }
+    },
+    "conventions": {
+      "type": "object",
+      "required": ["responseWrappers", "httpClient"],
+      "properties": {
+        "responseWrappers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "项目主流响应壳类型,如 CommonResponse / CommonDataResponse"
+        },
+        "httpClient": { "type": "string", "description": "HTTP 客户端名称,如 ApiJson" },
+        "httpClientFile": { "type": "string", "description": "HTTP 客户端定义文件路径" },
+        "commonTypesFile": { "type": "string", "description": "项目通用类型定义文件" },
+        "routerMode": { "type": "string", "enum": ["hash", "history"] },
+        "routerModeNote": { "type": "string" },
+        "interfaceFileNaming": {
+          "type": "object",
+          "properties": {
+            "types": { "type": "string", "default": "define.ts" },
+            "api": { "type": "string", "default": "api.ts" },
+            "mock": { "type": "string", "default": "mock.ts" }
+          }
+        }
+      }
+    },
+    "commonComponents": {
+      "type": "object",
+      "properties": {
+        "table": { "type": "string", "description": "项目公共表格组件名" },
+        "buttonClasses": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": "string" },
+            "secondary": { "type": "string" }
+          }
+        },
+        "dialogWrapperPattern": {
+          "type": "string",
+          "description": "弹窗外层 wrapper class 命名,占位符 <module>"
+        }
+      }
+    },
+    "referencePages": {
+      "type": "object",
+      "description": "新建模块时风格参考的项目同类页面",
+      "additionalProperties": { "type": "string" }
+    },
+    "permission": {
+      "type": "object",
+      "properties": {
+        "moduleCodeStrategy": { "type": "string", "enum": ["borrow", "newConst", "ignore"] },
+        "moduleCodeStrategyNote": { "type": "string" },
+        "todoTag": { "type": "string", "default": "TODO(perm):" }
+      }
+    },
+    "mastergoOutput": {
+      "type": "object",
+      "properties": {
+        "outDir": { "type": "string", "description": "master-go-to-code 产物目录,可被 MASTERGO_OUT_DIR 环境变量覆盖" }
+      }
+    },
+    "test": {
+      "type": "object",
+      "properties": {
+        "humanRegressionDir": { "type": "string" },
+        "agentFlowDir": { "type": "string" },
+        "sharedDir": { "type": "string" },
+        "authFilePath": { "type": "string" }
+      }
+    }
+  }
+}

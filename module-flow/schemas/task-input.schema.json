@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/skills/module-flow/task-input.schema.json",
+  "title": "PROJECT-TASK 任务指令",
+  "description": "module-flow Step 1 解析后的结构化任务指令。字段格式详见 references/task-template.md。",
+  "type": "object",
+  "required": ["pagePath", "module"],
+  "additionalProperties": false,
+  "properties": {
+    "pagePath": {
+      "type": "string",
+      "pattern": "^[^/]+( / [^/]+)*$",
+      "description": "菜单层级路径,用 ' / ' 分隔。如 '<父级菜单> / <目标菜单>'"
+    },
+    "module": {
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9]*$",
+      "description": "模块名,严格 camelCase,不含中文/空格/特殊字符"
+    },
+    "uiLink": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://mastergo\\.com/file/[0-9]+\\?layer_id=[0-9]+:[0-9a-f]+$",
+      "description": "MasterGo URL,Stage A 必填"
+    },
+    "apiLink": {
+      "oneOf": [
+        { "type": "string", "format": "uri" },
+        { "type": "array", "items": { "type": "string", "format": "uri" }, "minItems": 1 }
+      ],
+      "description": "YApi URL(单个或数组),Stage B 必填"
+    },
+    "screenshot": {
+      "type": "string",
+      "description": "用户拖入的截图路径(可选,精修阶段辅助)"
+    },
+    "prototypeDoc": {
+      "type": "string",
+      "description": "需求文档内容(可选,多行)"
+    },
+    "styleScope": {
+      "type": "string",
+      "enum": ["content-only", "full-page"],
+      "default": "content-only",
+      "description": "或 'custom: 描述'"
+    },
+    "styleRules": {
+      "type": "string",
+      "pattern": "^ref:.+$",
+      "description": "如 'ref:<existingPage>' 复用风格"
+    },
+    "dataStrategy": {
+      "type": "string",
+      "enum": ["auto", "mock", "api"],
+      "default": "auto"
+    },
+    "vueRequirements": { "type": "string" },
+    "targetPath": { "type": "string" },
+    "imgDir": { "type": "string" },
+    "stages": {
+      "type": "string",
+      "pattern": "^[ABCD](,[ABCD])*$",
+      "default": "A,B,C,D",
+      "description": "执行阶段列表,逗号分隔。如 'A,B,C' 跳过验证"
+    },
+    "verifyFlow": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Stage D 的 flow 名,留空自动用 <module>-smoke"
+    },
+    "notes": { "type": "string" }
+  }
+}

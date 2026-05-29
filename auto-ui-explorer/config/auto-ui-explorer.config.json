@@ -1,0 +1,36 @@
+{
+  "noiseBlacklist": [
+    "CustomTable.vue",
+    "CommonSelect.vue",
+    "CommonSelectWithOther.vue",
+    "CustomDatePicker",
+    "BuildingTreeSelect.vue",
+    "IhsTabs",
+    "MemberSelector",
+    "OssUpload"
+  ],
+  "clickEventPatterns": [
+    "@click",
+    "@click.stop",
+    "@click.prevent",
+    "@click.native",
+    "v-on:click"
+  ],
+  "formComponentTypes": [
+    "el-input",
+    "el-select",
+    "CommonSelect",
+    "CommonSelectWithOther",
+    "el-radio-group",
+    "el-radio",
+    "el-checkbox",
+    "el-checkbox-group",
+    "el-date-picker",
+    "el-time-picker",
+    "el-switch",
+    "el-input-number",
+    "el-cascader",
+    "el-upload",
+    "OssUpload"
+  ]
+}

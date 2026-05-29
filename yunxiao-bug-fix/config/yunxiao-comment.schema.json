@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "云效 Bug 修复评论硬规",
+  "description": "yunxiao-bug-fix 回写云效评论的强制结构。.claude/hooks/validate-yunxiao-comment.mjs 读这份做 PreToolUse 校验,不符合直接 block。改规则只改本文件,不动 hook 代码。",
+  "type": "object",
+  "properties": {
+    "skipMarker": {
+      "type": "string",
+      "description": "评论第一行命中本字符串则跳过校验(逃生口,临时发简评论用)。",
+      "default": "[skip-template]"
+    },
+    "rules": {
+      "type": "array",
+      "description": "硬规列表。所有规则全部命中才算通过,任一不通过 → block + 报告失败规则。",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type"],
+        "properties": {
+          "id": { "type": "string", "description": "规则唯一 ID(报错时显示)" },
+          "name": { "type": "string", "description": "规则中文名(报错时显示)" },
+          "type": {
+            "type": "string",
+            "enum": ["firstLineRegex", "headerSequence", "sectionMustHavePattern", "sectionEachLineMatch", "noBlacklistEmoji"]
+          },
+          "regex": { "type": "string" },
+          "headers": { "type": "array", "items": { "type": "string" } },
+          "section": { "type": "string", "description": "章节标题文本(用于在 content 中定位区段)" },
+          "linePattern": { "type": "string", "description": "区段内每非空行需匹配的正则" },
+          "atLeastOneMatch": { "type": "string", "description": "区段内至少一行匹配的正则" },
+          "blacklistEmojiRegex": { "type": "string", "description": "不允许出现的 emoji 范围(扁平正则)" },
+          "whitelistEmojis": { "type": "array", "items": { "type": "string" }, "description": "允许的 emoji 列表(配合 noBlacklistEmoji)" },
+          "hint": { "type": "string", "description": "命中失败时的修复提示" }
+        }
+      }
+    }
+  },
+  "skipMarker": "[skip-template]",
+  "rules": [
+    {
+      "id": "header-line",
+      "name": "首行格式",
+      "type": "firstLineRegex",
+      "regex": "^✅ 已修复 \\| ⏱️ 修复时间[:：]\\s*\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}\\s*$",
+      "hint": "首行必须严格是: ✅ 已修复 | ⏱️ 修复时间:YYYY-MM-DD HH:mm"
+    },
+    {
+      "id": "header-sequence",
+      "name": "4 个章节按顺序出现",
+      "type": "headerSequence",
+      "headers": [
+        "**⬇️ 验证步骤**",
+        "**⚠️ 问题原因**",
+        "**⚡ 修复方案**",
+        "**➡️ 涉及文件**"
+      ],
+      "hint": "必须有 4 个章节标题且顺序固定: ⬇️ 验证步骤 → ⚠️ 问题原因 → ⚡ 修复方案 → ➡️ 涉及文件"
+    },
+    {
+      "id": "verify-steps-ordered-list",
+      "name": "验证步骤至少一行有序列表",
+      "type": "sectionMustHavePattern",
+      "section": "**⬇️ 验证步骤**",
+      "atLeastOneMatch": "^\\s*\\d+\\.\\s+\\S",
+      "hint": "「验证步骤」区段至少要有一行 `1. xxx` 这样的有序列表项"
+    },
+    {
+      "id": "fix-plan-bullet",
+      "name": "修复方案至少一条 - 列表",
+      "type": "sectionMustHavePattern",
+      "section": "**⚡ 修复方案**",
+      "atLeastOneMatch": "^\\s*-\\s+\\S",
+      "hint": "「修复方案」区段至少要有一行 `- xxx` 这样的无序列表项"
+    },
+    {
+      "id": "files-backtick-each-line",
+      "name": "涉及文件每行反引号包裹",
+      "type": "sectionEachLineMatch",
+      "section": "**➡️ 涉及文件**",
+      "linePattern": "^`[^`\\n]+`\\s*$",
+      "hint": "「涉及文件」区段每行必须是 `path/to/file.ext` 这样反引号包裹的文件路径,不能有别的文字"
+    },
+    {
+      "id": "emoji-whitelist",
+      "name": "emoji 白名单",
+      "type": "noBlacklistEmoji",
+      "whitelistEmojis": ["✅", "❌", "⚠️", "✔️", "✖️", "➡️", "⬅️", "⬆️", "⬇️", "ℹ️", "❗", "❓", "⭐", "⚡", "♻️", "⏱️"],
+      "hint": "只能用白名单内的 emoji: ✅❌⚠️✔️✖️➡️⬅️⬆️⬇️ℹ️❗❓⭐⚡♻️⏱️"
+    }
+  ]
+}
