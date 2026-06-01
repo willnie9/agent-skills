@@ -70,7 +70,7 @@
 ### `mcp__getDsl` 401
 **症状**：MCP 调用返回 401 Unauthorized
 **原因**：`.env` 的 `MASTERGO_TOKEN` 失效或未设置
-**修复**：检查 `.kiro/settings/mcp.json` 的 `--token=` 参数,重新登录拿新 token
+**修复**：检查项目根 `.mcp.json` 的 `--token=` 参数,重新登录拿新 token
 
 ### `mcp__getDsl` 返回空 DSL
 **症状**：DSL 结构正常但 children 为空
