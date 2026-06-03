@@ -3,8 +3,8 @@
   "_description": "项目级配置:让所有 skill 通过这份配置了解项目结构,避免在 SKILL.md 写死",
   "_usage": "SKILL.md 里用 <config.xxx> 占位代替项目硬编码。Step 0 自检阶段优先读本文件,缺字段才回退到 grep 探测。",
   "project": {
-    "name": "jdz-base-manage",
-    "displayName": "景德镇养老机构管理系统",
+    "name": "your-project-name",
+    "displayName": "Your Project Display Name",
     "framework": "vue3",
     "uiLib": "element-plus",
     "buildTool": "vite",
@@ -41,16 +41,16 @@
   "commonComponents": {
     "table": "CustomTable",
     "buttonClasses": {
-      "primary": "custom-btn-style-confirm",
-      "secondary": "custom-btn-style-cancel"
+      "primary": "your-primary-btn-class",
+      "secondary": "your-secondary-btn-class"
     },
     "dialogWrapperPattern": "<module>-dialog-wrapper"
   },
   "referencePages": {
-    "_description": "新建模块时 frontend-page-design Step 1 拿来当风格参考的项目同类页面",
-    "crudList": "src/views/customerManage/Index.vue",
-    "detailDrawer": "src/views/customerManage/components/DetailDrawer.vue",
-    "formDialog": "src/views/customerManage/components/AddCustomerDialog.vue"
+    "_description": "新建模块时 frontend-page-design Step 1 拿来当风格参考的项目同类页面，改为你的项目中已有的参考页面路径",
+    "crudList": "src/views/<your-module>/Index.vue",
+    "detailDrawer": "src/views/<your-module>/components/DetailDrawer.vue",
+    "formDialog": "src/views/<your-module>/components/AddDialog.vue"
   },
   "permission": {
     "moduleCodeStrategy": "borrow",

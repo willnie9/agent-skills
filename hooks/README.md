@@ -23,7 +23,7 @@ chmod +x .claude/hooks/*.mjs
 | 文件 | 类型 | 触发 | 拦什么 |
 |---|---|---|---|
 | `auto-mode-guard.mjs` | PreToolUse | AskUserQuestion / ExitPlanMode | auto 模式下问非白名单问题(白名单关键词:MCP/git/输入缺失/schema fail/dev server/e2e 定位失败) |
-| `validate-yunxiao-comment.mjs` | PreToolUse | `mcp__aliyun-yunxiao__create_work_item_comment` | 评论内容缺必需章节(修复说明 / 验证情况) |
+| `validate-yunxiao-comment.mjs` | PreToolUse | `mcp__aliyun-yunxiao__create_work_item_comment` | 执行 `yunxiao-comment.schema.json` 中全部 rules（首行格式/章节顺序/列表结构/emoji 白名单），任一不通过 → block |
 | `enforce-rough-first.mjs` | PreToolUse | Write/Edit/MultiEdit | 粗转 chunks 未完成时不允许写精修 dom-tree |
 | `enforce-source-read.mjs` | PreToolUse | Write/Edit | 没读源码就写 SP 用例(auto-ui-explorer 专属,查 source-read flag 文件) |
 | `validate-stage-products.mjs` | PreToolUse | Task | Stage 切换前查上一阶段 stage-report.json verdict |

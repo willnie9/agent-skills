@@ -6,3 +6,10 @@ logs/
 *.log
 .DS_Store
 credentials.local.json
+
+# runtime screenshots (MCP 截图落盘，运行时产物)
+playwright-skill/runtime/screenshots/*
+!playwright-skill/runtime/screenshots/.gitignore
+
+# playwright 实际生效配置（含项目 selector 等，不提交）
+playwright-skill/config/playwright-skill.config.json

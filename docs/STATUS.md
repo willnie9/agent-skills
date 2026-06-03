@@ -61,6 +61,7 @@
 | [master-go-to-code](./master-go-to-code/SKILL.md) | v2.2.0 | 视觉还原引擎 | 5 | 2 | 7 ✅ + Python 1 |
 | [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | 接口生成引擎 | 6 | — | 1 ✅ |
 | [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | 页面组装引擎 | 7 | — | 2 ✅ |
+| [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.0.0 | E2E 测试编排引擎 | 4 | 3 | 4 ✅ |
 | [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | MCP 浏览器适配层 | — | 1 (config-schema) | 仅 config + SKILL.md |
 | [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | 云效 Bug SOP | — | — | config/yunxiao-comment.md |
 | **_shared** | — | 跨 skill 共享层 | — | 3 | 5 ✅ |
@@ -100,13 +101,13 @@
 ## 依赖关系图
 
 ```
-                       module-flow (v2.1.0)
+                       module-flow (v2.2.0)
                             │
         ┌───────────────────┼───────────────────┐
         │                   │                   │
         ▼                   ▼                   ▼
 master-go-to-code      yapi-to-code      frontend-page-design
-   (v2.1.0)             (v2.1.0)            (v2.1.0)
+   (v2.2.0)             (v2.2.0)            (v2.2.0)
         │                   │                   │
         │  通过 JSON Schema  │                   │
         │  硬契约校验产物    │                   │
@@ -122,7 +123,7 @@ master-go-to-code      yapi-to-code      frontend-page-design
                   (Stage D MCP 浏览器验证)
 
 
-yunxiao-bug-fix (v3.1.0) ───┐
+yunxiao-bug-fix (v3.2.0) ───┐
    独立业务线                 │
    Step 7 可委托 playwright-skill(MCP 浏览器操作)─┘
 ```
