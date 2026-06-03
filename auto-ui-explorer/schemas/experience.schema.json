@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "E2E Experience",
+  "description": "操作经验库，记录每个 SP 的测试数据、操作技巧和踩坑经验，跨对话复用",
+  "type": "object",
+  "required": ["module", "updatedAt", "entries"],
+  "properties": {
+    "module": {
+      "type": "string",
+      "description": "模块名"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最后更新时间"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["spId", "component"],
+        "properties": {
+          "spId": {
+            "type": "string",
+            "pattern": "^SP-\\d{3,4}$",
+            "description": "SP 编号"
+          },
+          "component": {
+            "type": "string",
+            "description": "组件文件名（如 AddRecordDialog.vue）"
+          },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "description", "solution"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["wait", "selector", "data", "sequence", "retry", "workaround"],
+                  "description": "经验类型：wait=等待时机, selector=元素定位, data=数据依赖, sequence=操作顺序, retry=重试策略, workaround=绕过方案"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "问题描述"
+                },
+                "solution": {
+                  "type": "string",
+                  "description": "解决方案（可直接复用的操作指令）"
+                }
+              }
+            },
+            "description": "该 SP 积累的操作经验"
+          },
+          "testData": {
+            "type": "object",
+            "properties": {
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["label", "type", "value"],
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "description": "表单字段标签"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "组件类型（el-input / el-select / el-date-picker / el-radio 等）"
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "填入的测试值"
+                    },
+                    "action": {
+                      "type": "string",
+                      "description": "特殊操作说明（如 '点击展开后选第 2 项'）"
+                    }
+                  }
+                }
+              },
+              "preconditions": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "前置条件（如 '列表需有至少 1 条数据'）"
+              }
+            },
+            "description": "该 SP 使用的测试数据"
+          },
+          "timing": {
+            "type": "object",
+            "properties": {
+              "avgDuration": {
+                "type": "integer",
+                "description": "平均执行耗时（毫秒）"
+              },
+              "retries": {
+                "type": "integer",
+                "description": "历史重试次数"
+              }
+            },
+            "description": "执行耗时统计"
+          }
+        }
+      }
+    },
+    "globalLessons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scope", "description", "solution"],
+        "properties": {
+          "scope": {
+            "type": "string",
+            "description": "适用范围（如 login / table-empty / navigation / dialog）"
+          },
+          "description": {
+            "type": "string",
+            "description": "全局经验描述"
+          },
+          "solution": {
+            "type": "string",
+            "description": "解决方案"
+          }
+        }
+      },
+      "description": "跨 SP 的全局经验（登录、导航、通用等待策略等）"
+    }
+  }
+}

@@ -138,6 +138,15 @@ mkdir -p <config.structure.viewsDir>/<module>/components
 
 ### Step 4 · 生成 Index.vue(主页面)
 
+**★ 写入策略（防止 Write 工具超长内容失败）**：
+
+Vue SFC 文件（特别是含表格+筛选+弹窗的主页面）通常 200-400 行。必须按以下策略：
+- **≤ 250 行**：一次 Write 写入
+- **> 250 行**：先 Write `<template>` + `<script setup>`，再用 Edit 追加 `<style scoped lang="scss">`
+- **兜底**：用 Bash heredoc 写入：`cat > <path> << 'EOF' ... EOF`
+
+**绝对禁止**：一次 Write 超过 300 行。
+
 dom-tree.json → Vue SFC,严格按:
 - 模板结构、Script 分块、Style 嵌套:[references/code-style.md](./references/code-style.md)
 - 主页面骨架(筛选区 + 表格区两段式):[references/page-templates.md](./references/page-templates.md)
@@ -248,12 +257,12 @@ node .claude/skills/frontend-page-design/scripts/stage-c-finalize.mjs <module> <
 
 ## Changelog
 
-### v1.0.0 (2026-05-15)
+### v2.1.0 (2026-05-15)
 - 项目结构全面去硬编码,改读 `.claude/skills/project.config.json`
 - Step 9 加入 scan-perm-todos.mjs 扫描占位
 
-### v1.0.0 (2026-05-13)
-- 工程化规范重构:SKILL.md 压缩 70%,拆 references/
+### v2.0.0 (2026-05-13)
+- 大厂风格重构:SKILL.md 压缩 70%,拆 references/
 
 ### v1.0.0 (2026-05-13)
 - 初版

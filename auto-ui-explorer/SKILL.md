@@ -1,7 +1,7 @@
 ---
 name: auto-ui-explorer
 description: UI 自动化全流程 E2E 测试编排技能。基于"脚本全栈扫描 -> 大模型手工精修 -> 跨页流程编排 -> MCP单点执行"的高阶测试体系。当用户要求测试完整业务流、集成测试或传入整个模块路径时触发。
-version: 6.0.0
+version: 7.0.0
 ---
 
 # Auto UI Explorer · 全模块 E2E 测试编排大师
@@ -12,19 +12,22 @@ version: 6.0.0
 ## 目录结构
 
 ```
-.agents/skills/auto-ui-explorer/
+.claude/skills/auto-ui-explorer/
 ├── SKILL.md                                       本文件
 │
 ├── config/                                        项目适配层
 │   └── auto-ui-explorer.config.json                噪音黑名单 + 点击事件模式 + 表单组件类型
 │
 ├── schemas/                                       硬契约
-│   └── ui-dictionary.schema.json                   Step 1 词典输出的 JSON Schema
+│   ├── ui-dictionary.schema.json                   Step 1 词典输出的 JSON Schema
+│   ├── baseline.schema.json                        ★ baseline 结构校验
+│   └── experience.schema.json                      ★ experience 结构校验
 │
 ├── scripts/                                       脚本工具
 │   ├── analyze-module.mjs                          全目录递归扫盘器(读 config)
 │   ├── validate-dictionary.mjs                     Step 1 产物校验(校验 schema)
-│   └── validate-flow-plan.mjs                      Step 2.6 产物校验(SP 引用/覆盖率/空值拦截)
+│   ├── validate-flow-plan.mjs                      Step 2.6 产物校验(SP 引用/覆盖率/空值拦截)
+│   └── diff-baseline.mjs                           ★ Step 0.7 增量判断脚本
 │
 ├── references/                                    子文档(详细规范)
 │   ├── single-point-spec.md                        单点测试用例编写规范
@@ -36,7 +39,9 @@ version: 6.0.0
     ├── <module>-ui-dictionary.json                  Step 1 的词典
     ├── <module>-E2E-FLOW-PLAN.md                    Step 2 的剧本
     ├── <module>-API-AUDIT.md                        Step 0.9 的 API 对接审计报告
-    └── <module>-E2E-REPORT.md                       Step 6 的最终测试报告
+    ├── <module>-E2E-REPORT.md                       Step 6 的最终测试报告
+    ├── <module>-baseline.json                       ★ 增量执行基线（断点续跑依据）
+    └── <module>-experience.json                     ★ 操作经验库（跨对话复用）
 ```
 
 ---
@@ -135,22 +140,81 @@ B. **real-api 模式** — 测试真实后端接口（后端已就绪，验证�
 # 1. 目标目录存在
 test -d <目标模块目录>
 # 2. 扫描脚本完好
-test -f .agents/skills/auto-ui-explorer/scripts/analyze-module.mjs
+test -f .claude/skills/auto-ui-explorer/scripts/analyze-module.mjs
 # 3. 配置文件就位
-test -f .agents/skills/auto-ui-explorer/config/auto-ui-explorer.config.json
+test -f .claude/skills/auto-ui-explorer/config/auto-ui-explorer.config.json
 # 4. 校验脚本就位
-test -f .agents/skills/auto-ui-explorer/scripts/validate-dictionary.mjs
-test -f .agents/skills/auto-ui-explorer/scripts/validate-flow-plan.mjs
+test -f .claude/skills/auto-ui-explorer/scripts/validate-dictionary.mjs
+test -f .claude/skills/auto-ui-explorer/scripts/validate-flow-plan.mjs
+test -f .claude/skills/auto-ui-explorer/scripts/diff-baseline.mjs
 # 5. playwright-skill 就位
-test -f .agents/skills/playwright-skill/SKILL.md
-test -f .agents/skills/playwright-skill/config/playwright-skill.config.json
+test -f .claude/skills/playwright-skill/SKILL.md
+test -f .claude/skills/playwright-skill/config/playwright-skill.config.json
 # 6. 读取 playwright-skill 配置拿 baseURL
-cat .agents/skills/playwright-skill/config/playwright-skill.config.json | grep baseURL
+cat .claude/skills/playwright-skill/config/playwright-skill.config.json | grep baseURL
 # 7. 确认测试模式已选择（mock / real-api）
 echo "testMode = <已选模式>"
 ```
 
 任一失败即停，告诉用户具体原因。**测试模式未选择 → 必停**。
+
+### Step 0.7 · 读历史 baseline + 决定执行策略（增量/全量/续跑）
+
+**目的**：避免每次全量重跑，节省 50-70% token；跨对话断点续跑；复用历史操作经验。
+
+```bash
+node .claude/skills/auto-ui-explorer/scripts/diff-baseline.mjs <module> \
+  --baseline=.claude/skills/auto-ui-explorer/output/<module>-baseline.json \
+  --module-dir=<目标模块目录>
+```
+
+**判断逻辑**：
+
+```
+1. output/<module>-baseline.json 存在吗？
+   │
+   ├─ 不存在 → strategy=full（首次跑），跳过本步直接进 Step 0.9
+   │
+   └─ 存在 → 读 baseline.gitCommit，跑 diff-baseline.mjs：
+       │
+       ├─ git diff 拿到变更文件列表
+       ├─ 对每个 SP：
+       │     status=pass 且 relatedFiles 无变更 → SKIP
+       │     status=pass 但 relatedFiles 有变更 → RETEST
+       │     status=fail/pending              → RETEST
+       │
+       └─ 输出策略：
+            strategy=incremental → Step 4 只执行 RETEST 列表
+            strategy=all-pass    → 全部跳过，直接报告"无需重测"
+            strategy=full        → git diff 失败等异常，回退全量
+
+2. output/<module>-experience.json 存在吗？
+   │
+   ├─ 存在 → 加载到执行上下文（Step 4 直接复用测试数据和操作经验）
+   └─ 不存在 → 正常执行，执行后生成
+```
+
+**展示策略（非 auto 模式）**：
+
+```markdown
+📊 增量分析结果
+
+上次执行: 2026-06-01 10:00 (commit c7c916b)
+总 SP 数: 67
+  ✅ 跳过（代码未改且上次通过）: 40 个
+  🔄 需重测（代码改了/上次失败/未执行）: 27 个
+  💰 预计节省: 60% token
+
+经验库: ✅ 已加载（含 15 条操作经验 + 12 组测试数据）
+
+确认按增量策略执行？ "确认" / "全量重跑" / "只跑失败的"
+```
+
+**auto 模式**：不展示，直接按 strategy 执行。
+
+**★ 用户说"继续测 xxx"时**：本步自动识别为续跑（baseline 中 status=pending 的 SP）。
+
+---
 
 ### Step 0.5 · 模糊定位（用户只给模块名时）
 
@@ -201,7 +265,7 @@ ls src/views/<推断出的模块路径>/
    └── 重点检查列表页的搜索/筛选参数是否传递给 API 函数
 ```
 
-**产出**：`.agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md`
+**产出**：`.claude/skills/auto-ui-explorer/output/<module>-API-AUDIT.md`
 
 ```markdown
 # API 对接审计报告 — <模块名>
@@ -249,12 +313,12 @@ ls src/views/<推断出的模块路径>/
 ### Step 1 · 脚本全目录扫盘 (Script)
 
 ```bash
-node .agents/skills/auto-ui-explorer/scripts/analyze-module.mjs <目标模块目录>
+node .claude/skills/auto-ui-explorer/scripts/analyze-module.mjs <目标模块目录>
 ```
 
 脚本从 `config/auto-ui-explorer.config.json` 读取噪音黑名单和组件类型配置，在扫描层即完成预过滤。
 
-**产出**：`.agents/skills/auto-ui-explorer/output/<module>-ui-dictionary.json`
+**产出**：`.claude/skills/auto-ui-explorer/output/<module>-ui-dictionary.json`
 
 词典内容包含：
 - `routesAndFiles[]` — 扫到的所有 Vue 文件完整路径
@@ -268,8 +332,8 @@ node .agents/skills/auto-ui-explorer/scripts/analyze-module.mjs <目标模块目
 **★ Gate: Step 1 → Step 2（必须通过校验才能进入精修）**
 
 ```bash
-node .agents/skills/auto-ui-explorer/scripts/validate-dictionary.mjs \
-  .agents/skills/auto-ui-explorer/output/<module>-ui-dictionary.json
+node .claude/skills/auto-ui-explorer/scripts/validate-dictionary.mjs \
+  .claude/skills/auto-ui-explorer/output/<module>-ui-dictionary.json
 ```
 
 退出码非 0 → 停，报错给用户。
@@ -375,7 +439,16 @@ N. [数据变更验证] 新增完成后:
 
 #### Step 2.6 · 落盘产出
 
-将精修结果写入 `.agents/skills/auto-ui-explorer/output/<module>-E2E-FLOW-PLAN.md`。
+将精修结果写入 `.claude/skills/auto-ui-explorer/output/<module>-E2E-FLOW-PLAN.md`。
+
+**★ 写入策略（防止 Write 工具超长内容失败）**：
+
+FLOW-PLAN 通常 300-500 行，**禁止一次性 Write 全部内容**。必须按以下策略：
+- **方案 A（推荐）**：一次 Write 写入完整文件，但**严格控制在 250 行以内**。超过时砍掉冗余描述、合并同类 SP 的步骤说明。
+- **方案 B（文件确实超 250 行）**：先 Write 前半部分（SP 用例），再用 Edit 追加后半部分（Flow 编排）。Edit 追加时用文件末尾的唯一标记定位。
+- **方案 C（兜底）**：用 Bash heredoc 写入：`cat > output/<module>-E2E-FLOW-PLAN.md << 'EOF' ... EOF`
+
+**绝对禁止**：一次 Write 超过 300 行 → 大概率触发 `Error writing file`，前功尽弃。
 
 **★ FLOW-PLAN 头部必须包含测试模式声明**：
 
@@ -389,9 +462,9 @@ N. [数据变更验证] 新增完成后:
 **★ Gate: Step 2 → Step 3（必须通过校验才能展示/执行）**
 
 ```bash
-node .agents/skills/auto-ui-explorer/scripts/validate-flow-plan.mjs \
-  .agents/skills/auto-ui-explorer/output/<module>-E2E-FLOW-PLAN.md \
-  --dict=.agents/skills/auto-ui-explorer/output/<module>-ui-dictionary.json
+node .claude/skills/auto-ui-explorer/scripts/validate-flow-plan.mjs \
+  .claude/skills/auto-ui-explorer/output/<module>-E2E-FLOW-PLAN.md \
+  --dict=.claude/skills/auto-ui-explorer/output/<module>-ui-dictionary.json
 ```
 
 | 退出码 | 含义 | 处理 |
@@ -418,8 +491,8 @@ API 审计: ✅ 通过 / ⚠️ N 个问题
 词典校验: ✅ 通过
 剧本校验: ✅ 通过 / ⚠️ N 个警告
 
-剧本已落盘: .agents/skills/auto-ui-explorer/output/<module>-E2E-FLOW-PLAN.md
-API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
+剧本已落盘: .claude/skills/auto-ui-explorer/output/<module>-E2E-FLOW-PLAN.md
+API审计报告: .claude/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 
 确认无误后，将启动 Playwright MCP 逐点执行。是否开始？
 ```
@@ -429,6 +502,21 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 ### Step 4 · 单点执行 (Playwright MCP Execution) ★ 大幅强化
 
 接到用户确认后，按照 `E2E_FLOW_PLAN.md` 中的 **Flow 顺序**逐一推进。
+
+**★ 增量模式**：如果 Step 0.7 输出 strategy=incremental，只执行 `retest` 列表中的 SP，`skip` 列表中的 SP 直接标记 `[SKIP-UNCHANGED]` 不操作浏览器。
+
+**★ 经验复用**：执行每个 SP 前，先查 `output/<module>-experience.json`：
+- 有该 SP 的 `testData` → 直接用记录的测试数据，不再从源码推导
+- 有该 SP 的 `lessons` → 按经验操作（如"等 1s 再点"、"用 selector fallback"）
+- 无记录 → 按原逻辑从源码推导
+
+**★ 实时持久化（每个 SP 完成后立即写盘）**：
+```
+SP 执行完毕 → 立即更新两个文件：
+  1. baseline.json: 该 SP 的 status + fileHashes + lastTestedAt
+  2. experience.json: 该 SP 的 testData + lessons + timing
+→ 即使中途中断，已执行的部分不会丢
+```
 
 #### 4.1 执行前初始化 ★★★
 
@@ -591,7 +679,7 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 
 ### Step 6 · 产出测试报告
 
-落盘到 `.agents/skills/auto-ui-explorer/output/<module>-E2E-REPORT.md`。
+落盘到 `.claude/skills/auto-ui-explorer/output/<module>-E2E-REPORT.md`。
 
 包含：
 
@@ -632,24 +720,41 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 ## 截图清单
 ```
 
-### Step 7 · 完成自检 (Completion Self-Check) ★★★ 新增
+### Step 7 · 完成自检 + 持久化 (Completion Self-Check) ★★★
 
-**所有 Step 执行完毕后，必须做最终自检**：
+**所有 Step 执行完毕后，必须做最终自检 + 落盘 baseline/experience**：
 
 ```
 完成自检清单（必须逐项确认）:
   ☐ Step 0.9 API 审计报告已落盘
   ☐ Step 1 词典已生成并通过校验
   ☐ Step 2 剧本已生成并通过校验
-  ☐ Step 4 所有 SP 都已执行（无遗漏 [ ] 状态）
+  ☐ Step 4 所有 SP 都已执行（无遗漏 [ ] 状态，增量模式下 SKIP-UNCHANGED 不算遗漏）
   ☐ Step 4 所有截图已保存
   ☐ Step 5 集成串联已执行
   ☐ Step 6 测试报告已落盘到 output/<module>-E2E-REPORT.md
   ☐ 搜索/重置功能已验证（如有）
   ☐ 分页功能已验证（如有）
   ☐ CRUD 数据变更已验证（如有）
-  ☐ E2E-FLOW-PLAN.md 中无残留 [ ] 标记（全部为 [x] 或 [!] 或 [?]）
+  ☐ E2E-FLOW-PLAN.md 中无残留 [ ] 标记（全部为 [x] 或 [!] 或 [?] 或 [SKIP-UNCHANGED]）
+  ☐ ★ baseline.json 已落盘（含所有 SP 的最终状态）
+  ☐ ★ experience.json 已落盘（含本次积累的测试数据和经验）
 ```
+
+**★ baseline.json 最终落盘**（Step 4 已实时写，这里做最终校验）：
+
+```bash
+# 校验 baseline 结构
+node -e "
+const fs = require('fs');
+const b = JSON.parse(fs.readFileSync('.claude/skills/auto-ui-explorer/output/<module>-baseline.json'));
+const pending = b.results.filter(r => r.status === 'pending').length;
+if (pending > 0) { console.error('⚠️ 还有 ' + pending + ' 个 SP 未执行'); process.exit(1); }
+console.log('✅ baseline 完整: ' + b.results.length + ' 个 SP 全部有结果');
+"
+```
+
+**★ experience.json 最终落盘**：确认本次新增的经验条目已写入。
 
 **任一项未完成 → 禁止向用户报告"测试完成"**。
 
@@ -659,27 +764,31 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 
 以下约束由 SKILL.md 定义，大模型在执行本 skill 时**必须自觉遵守**，违反等于严重违规。
 
-| # | 时机 | 约束名 | 拦截内容 |
-|---|------|--------|---------| 
-| H1 | 入口 | `enforce-test-mode` | **必须在 Step 0 之前确认测试模式（mock/real-api）**。未确认 → 禁止往下走。auto 模式默认 mock，但必须在产出中声明。 |
-| H2 | Step 0.9 → Step 1 | `gate-api-audit` | **必须完成 API 对接审计**。real-api 模式有 🔴 阻断 → 禁止继续。mock 模式有 🔴 → 警告但可继续。 |
-| H3 | Step 1 → Step 2 | `gate-dictionary` | 必须跑 `validate-dictionary.mjs`，退出码非 0 → **禁止进入 Step 2** |
-| H4 | Step 2 执行中 | `enforce-source-read` | 大模型在 Step 2.1 中**必须 `view_file` 打开至少 3 个源码文件**。如果直接跳到 2.3 输出 SP 而没读过任何源码 → 严重违规，必须回退重做 |
-| H5 | Step 2 执行中 | `enforce-noise-filter` | 大模型输出的 SP 用例中**不得出现** `config.noiseBlacklist` 中的任何组件名。出现 → 删除该 SP 并重新编号 |
-| H6 | Step 2.5 执行中 | `enforce-pagination-sp` | **所有含分页的列表页必须有对应的分页验证 SP**。没有 → 必须补充 |
-| H7 | Step 2.5 执行中 | `enforce-search-sp` | **所有含搜索框的页面必须有搜索参数验证 SP**。没有 → 必须补充 |
-| H8 | Step 2.5 执行中 | `enforce-crud-mutation` | **所有含 CRUD 的 Flow 必须有数据变更验证步骤**。没有 → 必须补充 |
-| H9 | Step 2.6 → Step 3 | `gate-flow-plan` | 必须跑 `validate-flow-plan.mjs`，退出码=2 → **禁止进入 Step 3**，必须修正 |
-| H10 | Step 4 执行前 | `enforce-init-state` | **必须记录初始状态（表格行数、分页总条数）**。没有初始状态记录就开始测 → 严重违规 |
-| H11 | Step 4 执行中 | `enforce-screenshot` | 每个 SP 执行完毕**必须调用 `browser_take_screenshot`**。没截图就标 `[x]` → 严重违规 |
-| H12 | Step 4 执行中 | `enforce-reset` | 每个 Flow 执行完毕**必须调用 `browser_navigate` 重置到初始路由**。漏重置 → 后续 Flow 结果不可信 |
-| H13 | Step 4 → Step 5 | `gate-all-sp-done` | **E2E-FLOW-PLAN.md 中不得有残留 `[ ]` 状态的 SP**。有 → 禁止进入 Step 5，必须执行完或标 `[!]`/`[SKIP]` |
-| H14 | Step 5 → Step 6 | `gate-integration` | **集成串联验证必须执行**。跳过 Step 5 直接写报告 → 严重违规 |
-| H15 | Step 6 → 完成 | `gate-completion` | **Step 7 完成自检必须全部通过**。有未勾选项 → 禁止宣称"测试完成" |
+| # | 时机 | 约束名 | 拦截内容 | 状态 |
+|---|------|--------|---------|---|
+| H1 | 入口 | `enforce-test-mode` | **必须在 Step 0 之前确认测试模式（mock/real-api）**。未确认 → 禁止往下走。auto 模式默认 mock，但必须在产出中声明。 | 软约束 |
+| H2 | Step 0.9 → Step 1 | `gate-api-audit` | **必须完成 API 对接审计**。real-api 模式有 🔴 阻断 → 禁止继续。mock 模式有 🔴 → 警告但可继续。 | 软约束 |
+| H3 | Step 1 → Step 2 | `gate-dictionary` | 必须跑 `validate-dictionary.mjs`，退出码非 0 → **禁止进入 Step 2** | 半硬:校验脚本真,触发靠铁律 |
+| H4 | Step 2 执行中 | `enforce-source-read` | 大模型在 Step 2.1 中**必须 `view_file` 打开至少 3 个源码文件**。如果直接跳到 2.3 输出 SP 而没读过任何源码 → 严重违规，必须回退重做 | ✅ 真 hook(`.claude/hooks/enforce-source-read.mjs`):写 SP 用例前查 `.claude/state/auto-ui-explorer/source-read-<module>.flag` |
+| H5 | Step 2 执行中 | `enforce-noise-filter` | 大模型输出的 SP 用例中**不得出现** `config.noiseBlacklist` 中的任何组件名。出现 → 删除该 SP 并重新编号 | 软约束 |
+| H6 | Step 2.5 执行中 | `enforce-pagination-sp` | **所有含分页的列表页必须有对应的分页验证 SP**。没有 → 必须补充 | 软约束 |
+| H7 | Step 2.5 执行中 | `enforce-search-sp` | **所有含搜索框的页面必须有搜索参数验证 SP**。没有 → 必须补充 | 软约束 |
+| H8 | Step 2.5 执行中 | `enforce-crud-mutation` | **所有含 CRUD 的 Flow 必须有数据变更验证步骤**。没有 → 必须补充 | 软约束 |
+| H9 | Step 2.6 → Step 3 | `gate-flow-plan` | 必须跑 `validate-flow-plan.mjs`，退出码=2 → **禁止进入 Step 3**，必须修正 | 半硬:校验脚本真,触发靠铁律 |
+| H10 | Step 4 执行前 | `enforce-init-state` | **必须记录初始状态（表格行数、分页总条数）**。没有初始状态记录就开始测 → 严重违规 | 软约束 |
+| H11 | Step 4 执行中 | `enforce-screenshot` | 每个 SP 执行完毕**必须调用 `browser_take_screenshot`**。没截图就标 `[x]` → 严重违规 | 软约束 |
+| H12 | Step 4 执行中 | `enforce-reset` | 每个 Flow 执行完毕**必须调用 `browser_navigate` 重置到初始路由**。漏重置 → 后续 Flow 结果不可信 | 软约束 |
+| H13 | Step 4 → Step 5 | `gate-all-sp-done` | **E2E-FLOW-PLAN.md 中不得有残留 `[ ]` 状态的 SP**。有 → 禁止进入 Step 5，必须执行完或标 `[!]`/`[SKIP]` | 软约束 |
+| H14 | Step 5 → Step 6 | `gate-integration` | **集成串联验证必须执行**。跳过 Step 5 直接写报告 → 严重违规 | 软约束 |
+| H15 | Step 6 → 完成 | `gate-completion` | **Step 7 完成自检必须全部通过**。有未勾选项 → 禁止宣称"测试完成" | 软约束 |
+| H16 | Step 4 每个 SP 完成后 | `enforce-persist` | ★ **每个 SP 执行完毕必须立即更新 baseline.json + experience.json**。批量执行完再写 → 中断时丢失进度，严重违规 | ✅ 真 hook(`.claude/hooks/enforce-baseline-persist.mjs`):PostToolUse 检查 baseline.json mtime 是否在 60s 内更新 |
+
+> **状态说明**:✅ 已落 harness 真 hook,绕不过去;半硬 = 校验脚本是真的(exit 非 0),但靠 SKILL.md 约束触发;软约束 = 完全靠大模型自觉遵守。
+> H4 / H16 是本 skill 失败级联最严重的两条(凭空写 SP / 中断丢进度),所以优先做了真 hook。
 
 ---
 
-## 铁律 (12 条) ★ 新增 4 条
+## 铁律 (14 条)
 
 1. **Step 2 必须读源码**：只读 JSON 词典不读源码 = 严重违规。词典只是线索，源码才是真相。
 2. **噪音过滤绝对执行**：`CustomTable` / `CommonSelect` 等基础组件出现在测试节点中 = 严重违规。黑名单从 config 读取。
@@ -689,22 +798,36 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 6. **隔离与重置铁律**：每个 Flow 执行完毕必须 `browser_navigate` 回初始路由。
 7. **失败不掩盖**：接口 404、数据为空等问题如实标记，绝不跳过或假装通过。
 8. **Gate 不可跳**：`validate-dictionary.mjs` 和 `validate-flow-plan.mjs` 的校验是硬卡点，退出码非 0 时禁止往下走。auto 模式下 dictionary 校验仍然必停。
-9. **★ 搜索必须验证参数传递**：搜索/筛选功能不是"点了按钮没报错就算通过"。必须验证 API 调用时参数是否真正传递，搜索后数据是否实际过滤。未验证 → 严重违规。
-10. **★ 分页必须验证数据一致性**：分页组件的 `total` 必须与实际数据量一致，翻页必须导致数据刷新。未验证 → 严重违规。
-11. **★ CRUD 必须验证数据变更**：新增/删除/编辑操作后，列表数据必须发生对应变化。只验证"提交成功弹窗关闭"而不验证数据变更 → 严重违规。
-12. **★ 测试模式必须声明**：所有测试产出（E2E-FLOW-PLAN.md / API-AUDIT.md / E2E-REPORT.md）头部必须声明测试模式。未声明 → 产出无效。
+9. **搜索必须验证参数传递**：搜索/筛选功能不是"点了按钮没报错就算通过"。必须验证 API 调用时参数是否真正传递，搜索后数据是否实际过滤。未验证 → 严重违规。
+10. **分页必须验证数据一致性**：分页组件的 `total` 必须与实际数据量一致，翻页必须导致数据刷新。未验证 → 严重违规。
+11. **CRUD 必须验证数据变更**：新增/删除/编辑操作后，列表数据必须发生对应变化。只验证"提交成功弹窗关闭"而不验证数据变更 → 严重违规。
+12. **测试模式必须声明**：所有测试产出（E2E-FLOW-PLAN.md / API-AUDIT.md / E2E-REPORT.md）头部必须声明测试模式。未声明 → 产出无效。
+13. **★ 实时持久化**：每个 SP 执行完毕必须立即写 baseline.json + experience.json。禁止"全部跑完再统一写"——中断时进度全丢。
+14. **★ 经验必须复用**：experience.json 存在时，Step 4 必须先查经验库再操作。有现成测试数据不用、重新从源码推导 = 浪费 token，违规。
 
 ---
 
 ## 中断恢复机制
 
 用户在任意 Step 说"先停"或对话中断：
-- 已有的 `<module>-E2E-FLOW-PLAN.md` 保留，不删不回滚
-- 下次用户说"继续测 xxx 模块"时：
-  1. 检查 `output/<module>-E2E-FLOW-PLAN.md` 是否存在
-  2. 存在 → 扫描已有的 `[x]` / `[!]` 标记，从第一个 `[ ]` 继续
-  3. 不存在 → 从 Step 1 重新开始
-- 用户说"重测 xxx 模块" → 删除旧产物，从 Step 1 全部重来
+- 所有产物保留，不删不回滚
+- **baseline.json 是持久化的"进度条"**（每个 SP 完成后立即写盘，不依赖对话 context）
+
+**跨对话续跑**（用户说"继续测 xxx 模块"）：
+1. Step 0.7 读 `output/<module>-baseline.json`
+2. status=pending 的 SP = 上次没跑完的 → 组成 retest 列表
+3. status=pass 的 SP → 跳过（除非代码改了）
+4. 直接从 Step 4 开始执行 retest 列表（跳过 Step 1-2 编排，复用已有 FLOW-PLAN）
+
+**增量重测**（用户改了代码后说"再测一下 xxx"）：
+1. Step 0.7 跑 `diff-baseline.mjs` → 算出哪些文件改了
+2. 只重测关联 SP + 上次失败的 SP
+
+**全量重跑**（用户说"重测 xxx 模块"）：
+1. 删除 `output/<module>-baseline.json`（experience.json 保留！经验不丢）
+2. 从 Step 1 全部重来，但 Step 4 执行时仍复用 experience.json 的测试数据
+
+**经验库永不删除**：`experience.json` 只增不删（除非用户显式说"清除经验"）。即使全量重跑，历史积累的测试数据和操作技巧仍然复用。
 
 ## 反模式 (❌)
 
@@ -717,16 +840,21 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 - ❌ 接口 404 / 数据为空时标 `[x]` 而非 `[!][接口问题]` / `[!][数据问题]`
 - ❌ 在 skill 目录里创建 `node_modules` / `package.json` / `playwright.config.ts`（走 MCP，不走 test runner）
 - ❌ 截图写到项目源码目录（用 `playwright-skill/runtime/screenshots/`）
-- ❌ **★ 搜索类 SP 只验证"点了没报错"而不验证数据是否过滤**
-- ❌ **★ 分页类 SP 不验证 total 一致性和翻页效果**
-- ❌ **★ CRUD 后不验证列表数据变更就标通过**
-- ❌ **★ 不做 API 审计就开始生成测试用例**
-- ❌ **★ 不记录初始状态（行数/总条数）就开始执行测试**
-- ❌ **★ 不声明测试模式就开始测试**
-- ❌ **★ 跳过 Step 5 集成串联直接写报告**
+- ❌ 搜索类 SP 只验证"点了没报错"而不验证数据是否过滤
+- ❌ 分页类 SP 不验证 total 一致性和翻页效果
+- ❌ CRUD 后不验证列表数据变更就标通过
+- ❌ 不做 API 审计就开始生成测试用例
+- ❌ 不记录初始状态（行数/总条数）就开始执行测试
+- ❌ 不声明测试模式就开始测试
+- ❌ 跳过 Step 5 集成串联直接写报告
+- ❌ **★ experience.json 存在时不查就重新从源码推导测试数据**（浪费 token）
+- ❌ **★ 全部 SP 跑完才统一写 baseline.json**（中断时进度全丢）
+- ❌ **★ baseline 显示 strategy=incremental 时仍全量执行所有 SP**（浪费 token）
+- ❌ **★ 全量重跑时删除 experience.json**（经验永不删，只增不删）
 
 ## Common Pitfalls
 
+- **FLOW-PLAN 写入失败（Error writing file）**：FLOW-PLAN 通常 300-500 行，Write 工具对超长内容可能失败。**解决方案**：分 2-3 次写入（先写 SP-001~SP-030，再追加 SP-031~SP-067，最后追加 Flow 编排）。或者用 Bash heredoc 写入：`cat > output/xxx.md << 'PLAN_EOF' ... PLAN_EOF`。
 - **词典漏提 @click.stop**：v4.1+ 脚本已支持 `@click.stop` / `@click.prevent` / `@click.native` / `v-on:click`（从 config 读取模式列表）。但仍可能漏提极端写法，Step 2.1 的源码交叉校验兜底。
 - **动态 :title 弹窗**：词典会标记 `isDynamicTitle: true`，Step 2.1 必须读源码补全真实标题（如 `isEdit ? '编辑' : '新增'`）。
 - **下拉选项来自接口**：词典会标记 `optionsBinding` 字段。如果绑定的变量不是硬编码数组，SP 用例应标注 `[数据依赖接口]`。
@@ -745,7 +873,8 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
   targetRoute?: string,          // 浏览器初始路由（可选，会自动从 router 推断）
   testMode: 'mock' | 'real-api', // ★ 测试模式（必填）
   auto?: boolean,                // 是否 auto 模式
-  yapiCatUrl?: string,           // ★ YApi 分类 URL（可选，用于 API 审计）
+  yapiCatUrl?: string,           // YApi 分类 URL（可选，用于 API 审计）
+  strategy?: 'full' | 'incremental' | 'resume', // ★ 执行策略（Step 0.7 自动判断，也可手动指定）
 }
 ```
 
@@ -754,25 +883,31 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 {
   dictionaryPath: string,        // <module>-ui-dictionary.json（符合 schemas/ui-dictionary.schema.json）
   flowPlanPath: string,          // <module>-E2E-FLOW-PLAN.md（带 [x]/[!]/[?] 标记）
-  apiAuditPath: string,          // ★ <module>-API-AUDIT.md（API 对接审计报告）
+  apiAuditPath: string,          // <module>-API-AUDIT.md（API 对接审计报告）
   reportPath: string,            // <module>-E2E-REPORT.md（最终测试报告）
-  testMode: 'mock' | 'real-api', // ★ 实际使用的测试模式
+  baselinePath: string,          // ★ <module>-baseline.json（增量基线）
+  experiencePath: string,        // ★ <module>-experience.json（操作经验库）
+  testMode: 'mock' | 'real-api', // 实际使用的测试模式
+  strategy: 'full' | 'incremental' | 'resume', // ★ 实际执行策略
   validation: {
-    apiAudit: 'pass' | 'warn' | 'fail',  // ★ API 审计结果
+    apiAudit: 'pass' | 'warn' | 'fail',
     dictionary: 'pass' | 'fail',
     flowPlan: 'pass' | 'warn' | 'fail',
   },
   summary: {
     totalSP: number,
+    executed: number,            // ★ 本次实际执行的 SP 数
+    skipped: number,             // ★ 本次跳过的 SP 数（增量模式）
     passed: number,
     failed: number,
     uncertain: number,
+    tokenSaved: string,          // ★ 预估节省百分比（如 "60%"）
     coverage: {
       pages: string,             // "5/5"
       buttons: string,           // "12/14"
       dialogs: string,           // "6/6"
     },
-    dataIntegrity: {             // ★ 数据完整性验证
+    dataIntegrity: {
       searchValidated: boolean,
       paginationValidated: boolean,
       crudMutationValidated: boolean,
@@ -783,7 +918,20 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 
 ## Changelog
 
-### v1.0.0 (2026-05-29)
+### v7.0.0 (2026-06-01)
+- **★ 新增增量执行机制**：Step 0.7 读 baseline + git diff，只重测代码改过的 SP，节省 50-70% token
+- **★ 新增经验记录库**：`experience.json` 记录测试数据、操作技巧、元素定位经验，跨对话复用
+- **★ 新增 `diff-baseline.mjs` 脚本**：自动判断 full/incremental/resume 策略
+- **★ 断点续跑改为 baseline 驱动**：不再依赖 FLOW-PLAN 的 `[ ]` 标记，baseline.json 是持久化进度条
+- **★ Step 4 实时持久化**：每个 SP 完成后立即写 baseline + experience，中断不丢进度
+- **★ 铁律从 12 条扩展到 14 条**：新增实时持久化 / 经验必须复用
+- **★ Hooks 从 15 条扩展到 16 条**：新增 `enforce-persist`
+- **★ 反模式新增 4 条**
+- 目录结构新增 `schemas/baseline.schema.json` + `schemas/experience.schema.json`
+- 上下游契约新增 `strategy` 输入字段和 `baselinePath` / `experiencePath` / `executed` / `skipped` / `tokenSaved` 输出字段
+- 路径统一从 `.agents/skills/` 改为 `.claude/skills/`
+
+### v6.0.0 (2026-05-29)
 - **★ 新增测试模式选择**：`mock` / `real-api` 两种模式，入口必选，贯穿全流程
 - **★ 新增 Step 0.9 API 对接审计**：在生成测试用例前审计接口对接现状（参数完整性、Mock 拦截覆盖、YApi 对接率）
 - **★ 新增 Step 7 完成自检**：所有 Step 完成后必须逐项确认，禁止虚报"测试完成"
@@ -798,7 +946,7 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 - **★ 反模式新增 7 条**
 - 上下游契约新增 `testMode` / `yapiCatUrl` 输入字段和 `apiAuditPath` / `dataIntegrity` 输出字段
 
-### v1.0.0 (2026-05-29)
+### v5.0.0 (2026-05-29)
 - 新增 **Auto Mode**：关键词触发无确认模式，跳 Step 3 检查点
 - 新增 `schemas/ui-dictionary.schema.json` — 词典输出硬契约
 - 新增 `scripts/validate-dictionary.mjs` — Step 1 产物校验（退出码 0/1/2）
@@ -809,18 +957,18 @@ API审计报告: .agents/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
 - 铁律从 7 条扩展到 8 条（新增"Gate 不可跳"）
 - 上下游契约新增 `auto` 输入字段和 `validation` 输出字段
 
-### v1.0.0 (2026-05-29)
+### v4.1.0 (2026-05-29)
 - 新增 `config/auto-ui-explorer.config.json` 配置化噪音黑名单和组件类型
 - 新增 `references/` 子文档
 - `analyze-module.mjs` 升级：支持修饰符/路由/规则/选项提取
 - 新增中断恢复机制
 
-### v1.0.0 (2026-05-29)
+### v4.0.0 (2026-05-29)
 - 彻底重构 Step 2：JSON + 源码交叉校验六小步精修流程
 - 新增失败分类标签体系
 - 新增 Step 6 标准化测试报告模板
 
-### v1.0.0 (2026-05-29)
+### v3.0.0 (2026-05-29)
 - 确立四步编排法，脚本升级为目录级扫盘
 
 ### v1.0.0 (2026-05-29)

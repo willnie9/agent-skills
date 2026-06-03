@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "E2E Baseline",
+  "description": "记录每次 auto-ui-explorer 执行结果，用于增量判断和断点续跑",
+  "type": "object",
+  "required": ["module", "lastRun", "gitCommit", "testMode", "totalSP", "results"],
+  "properties": {
+    "module": {
+      "type": "string",
+      "description": "模块名（如 rehabilitation）"
+    },
+    "lastRun": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最后一次执行时间（ISO 8601）"
+    },
+    "gitCommit": {
+      "type": "string",
+      "description": "执行时的 git commit hash（短 hash）"
+    },
+    "testMode": {
+      "type": "string",
+      "enum": ["mock", "real-api"],
+      "description": "测试模式"
+    },
+    "totalSP": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "SP 总数"
+    },
+    "flowPlanPath": {
+      "type": "string",
+      "description": "对应的 FLOW-PLAN 文件路径"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "relatedFiles"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^SP-\\d{3,4}$",
+            "description": "SP 编号"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "fail", "pending", "skip"],
+            "description": "执行状态：pass=通过, fail=失败, pending=未执行, skip=本次跳过"
+          },
+          "failTag": {
+            "type": "string",
+            "description": "失败标签（仅 status=fail 时有值）"
+          },
+          "relatedFiles": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "关联的 Vue 文件相对路径（相对模块目录）"
+          },
+          "fileHashes": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "description": "关联文件的 git hash（用于判断是否改动）"
+          },
+          "lastTestedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "该 SP 最后一次执行时间"
+          }
+        }
+      }
+    }
+  }
+}

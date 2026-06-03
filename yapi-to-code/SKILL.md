@@ -123,6 +123,15 @@ mcp__yapi-auto-mcp__yapi_get_categories({ projectId })
 
 ### Step 4 · 写入文件
 
+**★ 写入策略（防止 Write 工具超长内容失败）**：
+
+批量接口（≥5 个）时 define.ts 可能超 200 行。必须按以下策略：
+- **≤ 250 行**：一次 Write 写入
+- **> 250 行**：拆分写入 — 先 Write define.ts（interface + enum），再单独 Write api.ts，再单独 Write mock.ts。每个文件独立不超 250 行。
+- **单个 define.ts 超 250 行**：按业务分组拆为 `define.ts`（主类型）+ `define-enums.ts`（枚举+MAP），api.ts 统一 re-export。
+
+**绝对禁止**：一次 Write 超过 300 行。
+
 落盘目录 = `<config.structure.cacheDir>/<module>/`,文件名按 `config.conventions.interfaceFileNaming`:
 
 ```
@@ -214,13 +223,13 @@ node .claude/skills/yapi-to-code/scripts/validate-define.mjs \
 
 ## Changelog
 
-### v1.0.0 (2026-05-15)
+### v2.1.0 (2026-05-15)
 - 项目结构全面去硬编码,改读 `.claude/skills/project.config.json`
 - Step 4 加入 validate-define.mjs 校验
 - Step 1 拆为 1.0/1.1/1.2 三种入口
 
-### v1.0.0 (2026-05-13)
-- 工程化规范重构:SKILL.md 压缩 80%,拆 references/
+### v2.0.0 (2026-05-13)
+- 大厂风格重构:SKILL.md 压缩 80%,拆 references/
 
 ### v1.0.0 (2026-05-13)
 - 初版

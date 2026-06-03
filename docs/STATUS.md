@@ -2,7 +2,7 @@
 
 > 一页快速了解 6 个 skill 的版本/依赖/触发方式/最近变更。详细文档见各自 `SKILL.md`。
 
-**最后更新**:2026-05-15(v1.0.0 全 auto 化 + 统一 stage-report)
+**最后更新**:2026-06-03(v1.1.0 真 hook 落盘 + 区分硬/软约束)
 **当前活跃流水线**:module-flow → A → B → C → A.recall(DSL diff) → D,每个 Stage 切换有 stage-gate.mjs 把关
 **支持 5 个场景**:1 完整新模块(含接口) / 2 完整新模块(无接口) / 3 增量 / 4 迭代 / 5 重构 (3/4/5 跑 e2e 定位现有模块)
 
@@ -57,12 +57,12 @@
 
 | Skill | 版本 | 角色 | references | schemas | scripts |
 |-------|------|------|--|---|---|
-| [module-flow](./module-flow/SKILL.md) | v1.0.0 | 总调度·编排器 | 6 | 1 | 2 ✅ |
-| [master-go-to-code](./master-go-to-code/SKILL.md) | v1.0.0 | 视觉还原引擎 | 5 | 2 | 7 ✅ + Python 1 |
-| [yapi-to-code](./yapi-to-code/SKILL.md) | v1.0.0 | 接口生成引擎 | 6 | — | 1 ✅ |
-| [frontend-page-design](./frontend-page-design/SKILL.md) | v1.0.0 | 页面组装引擎 | 7 | — | 2 ✅ |
-| [playwright-skill](./playwright-skill/SKILL.md) | v1.0.0 | MCP 浏览器适配层 | — | 1 (config-schema) | 仅 config + SKILL.md |
-| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v1.0.0 | 云效 Bug SOP | — | — | config/yunxiao-comment.md |
+| [module-flow](./module-flow/SKILL.md) | v2.2.0 | 总调度·编排器 | 6 | 1 | 2 ✅ |
+| [master-go-to-code](./master-go-to-code/SKILL.md) | v2.2.0 | 视觉还原引擎 | 5 | 2 | 7 ✅ + Python 1 |
+| [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | 接口生成引擎 | 6 | — | 1 ✅ |
+| [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | 页面组装引擎 | 7 | — | 2 ✅ |
+| [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | MCP 浏览器适配层 | — | 1 (config-schema) | 仅 config + SKILL.md |
+| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | 云效 Bug SOP | — | — | config/yunxiao-comment.md |
 | **_shared** | — | 跨 skill 共享层 | — | 3 | 5 ✅ |
 | **顶层** | — | 项目配置 + 总流程 | — | 1 (project-config) | — |
 
@@ -100,13 +100,13 @@
 ## 依赖关系图
 
 ```
-                       module-flow (v1.0.0)
+                       module-flow (v2.1.0)
                             │
         ┌───────────────────┼───────────────────┐
         │                   │                   │
         ▼                   ▼                   ▼
 master-go-to-code      yapi-to-code      frontend-page-design
-   (v1.0.0)             (v1.0.0)            (v1.0.0)
+   (v2.1.0)             (v2.1.0)            (v2.1.0)
         │                   │                   │
         │  通过 JSON Schema  │                   │
         │  硬契约校验产物    │                   │
@@ -118,11 +118,11 @@ master-go-to-code      yapi-to-code      frontend-page-design
             └───────────────────────────────────┘
                             │
                             ▼
-                  playwright-skill (v1.0.0)
+                  playwright-skill (v8.0.0)
                   (Stage D MCP 浏览器验证)
 
 
-yunxiao-bug-fix (v1.0.0) ───┐
+yunxiao-bug-fix (v3.1.0) ───┐
    独立业务线                 │
    Step 7 可委托 playwright-skill(MCP 浏览器操作)─┘
 ```
@@ -201,16 +201,16 @@ yunxiao-bug-fix (v1.0.0) ───┐
 
 ## 关键改进
 
-### v1.0.0(2026-05-21)playwright-skill MCP-first 瘦身
+### v2.3.0(2026-05-21)playwright-skill MCP-first 瘦身
 
-1. **playwright-skill 升 v1.0.0**:砍掉 `flows/` `playwright.config.ts` `package.json` `node_modules` `run.cjs` `lib/auth-*` `lib/nav` `lib/helpers` 等 test runner 框架
+1. **playwright-skill 升 v8.0.0**:砍掉 `flows/` `playwright.config.ts` `package.json` `node_modules` `run.cjs` `lib/auth-*` `lib/nav` `lib/helpers` 等 test runner 框架
 2. **不再写 spec 文件**:浏览器操作一律走 MCP `browser_*` 工具,Claude 边看 snapshot 边操作
 3. **上游契约改为「MCP 操作 + 口头汇报」**:`yunxiao-bug-fix` Step 7 / `module-flow` Stage D 不再跑 `npx playwright test --grep=...`,改为读 config + MCP 操作 + 截图汇报
 4. **删 `module-flow/scripts/generate-smoke-flow.mjs`**:smoke 不再靠生成 spec
 5. **配置 schema 同步精简**:去掉 `maxAgeHours` `envUsername/Password` `interactivePrompt` `devServerCheckPorts`(MCP 不需要)
 6. **截图统一落 `runtime/screenshots/`**:不再用 `runtime/test-results/<spec>/`
 
-### v1.0.0(2026-05-15)全 auto 化 + 统一 stage-report
+### v2.2.0(2026-05-15)全 auto 化 + 统一 stage-report
 
 1. **6 个 skill 统一支持 auto 关键词**(yolo / 全跑 / 一气呵成 / 别问):全部 frontmatter 升 2.2.0 / 3.2.0 / 6.0.0
 2. **统一 stage-report.schema.json**:所有 skill 产报告统一 verdict (`pass/warn/fail`) 格式
@@ -227,7 +227,7 @@ yunxiao-bug-fix (v1.0.0) ───┐
    - 回写时上传 playwright 截图作为云效附件
 10. **Gate 同时检查 A 和 B**:Stage B 漏跑不会被忽略
 
-### v1.0.0(2026-05-15)项目隔离 / 配置化
+### v2.1.0(2026-05-15)项目隔离 / 配置化
 
 1. **skill 自包含**:`fetch-and-parse.mjs` / `render.mjs` / `seed-test-data.mjs` 从项目 `scripts/mastergo/` 搬到 `.claude/skills/master-go-to-code/scripts/`
 2. **npm 依赖自带**:`sharp` / `pixelmatch` / `pngjs` 放 skill 自己的 `node_modules/`,首次 `cd .claude/skills/master-go-to-code && npm install`
@@ -236,9 +236,9 @@ yunxiao-bug-fix (v1.0.0) ───┐
 5. **去 .agents 依赖**:yunxiao-bug-fix 4 处 `.agents/skills/playwright-skill/` 改 `.claude/skills/playwright-skill/`
 6. **产物路径环境变量**:`MASTERGO_OUT_DIR` 可覆盖默认 `.claude/skills/master-go-to-code/output`(skill 内部产物目录,跨项目复用 skill 时不污染项目根)
 
-### v1.0.0(2026-05-13)工程化规范重构
+### v2.0.0(2026-05-13)大厂风格重构
 
-1. **工程化规范压缩**:平均 SKILL.md 行数 ↓ 70%,可读性大幅提升
+1. **大厂风格压缩**:平均 SKILL.md 行数 ↓ 70%,可读性大幅提升
 2. **硬契约校验**:5 个 JSON Schema + validate 脚本,中间产物机器可校验
 3. **_shared 共享层**:CommonResponse 等通用 schema 一处定义,所有 skill 引用
 4. **上下游契约段**:每个 skill 末尾明示输入/输出 schema
@@ -250,8 +250,8 @@ yunxiao-bug-fix (v1.0.0) ───┐
 
 - **2026-05-13 初版**:6 个 skill 协同,引入 module-flow 总调度
 - **2026-05-13 优化 P0-P2**:12 项优化(响应壳/imgDir/MODULE_CODE/CHANGELOG/STATUS 等)
-- **2026-05-13 v1.0.0 工程化规范重构**:压缩主 SKILL.md 70%,硬 schema 化,_shared 共享层
+- **2026-05-13 v2.0.0 大厂风格重构**:压缩主 SKILL.md 70%,硬 schema 化,_shared 共享层
 - **2026-05-13 B 阶段工程化**:补 11 个工具脚本,边界重复消除,流水线全程可机器校验
 - **2026-05-13 模式启动**:全局 settings 加 `bypassPermissions`,免反复确认
-- **2026-05-15 v1.0.0 全 auto 化**:6 个 skill 统一支持 auto 关键词,统一 stage-report 格式,抽 stage-gate.mjs 通用检查器
-- **2026-05-15 v1.0.0 项目隔离**:skill 完全自包含,不依赖项目脚本,项目结构改读 project.config.json
+- **2026-05-15 v2.2.0 全 auto 化**:6 个 skill 统一支持 auto 关键词,统一 stage-report 格式,抽 stage-gate.mjs 通用检查器
+- **2026-05-15 v2.1.0 项目隔离**:skill 完全自包含,不依赖项目脚本,项目结构改读 project.config.json

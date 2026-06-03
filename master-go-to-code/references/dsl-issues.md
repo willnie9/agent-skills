@@ -190,7 +190,7 @@
 | 2026-05-20 | #split-3 合并器实现 (merge-refined.py) | 切分 → 精修 → 合并闭环打通 |
 | 2026-05-20 | #widget-3 INSTANCE 字段补全 + 组件二次拉取 + 缓存 | 按钮/输入框等组件圆角、padding、阴影零丢失 |
 | 2026-05-20 | dom-tree-spec.md 新增 3 条布局规则 | 见下方 |
-| 2026-05-20 | SKILL.md 升级 v1.0.0,工作流改为 Step 1.1 拉资源 + 1.2 切 chunk → Step 2.1-2.4 分块精修 + 合并 + 校验 | 与实际跑通流程对齐 |
+| 2026-05-20 | SKILL.md 升级 v2.3.0,工作流改为 Step 1.1 拉资源 + 1.2 切 chunk → Step 2.1-2.4 分块精修 + 合并 + 校验 | 与实际跑通流程对齐 |
 | 2026-05-20 | SKILL.md 增铁律 #6:Step 1.1 INSTANCE 字段补全不可绕过 | 数据完整性强制约束 |
 | 2026-05-20 | 产物清理补全:fetch-and-parse 清 chunks + chunks-refined;split-dsl 整目录 rmtree | 跨画板重跑无残留旧 chunk |
 

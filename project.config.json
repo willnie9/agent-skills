@@ -3,8 +3,8 @@
   "_description": "项目级配置:让所有 skill 通过这份配置了解项目结构,避免在 SKILL.md 写死",
   "_usage": "SKILL.md 里用 <config.xxx> 占位代替项目硬编码。Step 0 自检阶段优先读本文件,缺字段才回退到 grep 探测。",
   "project": {
-    "name": "your-project-name",
-    "displayName": "Your Project Name",
+    "name": "jdz-base-manage",
+    "displayName": "景德镇养老机构管理系统",
     "framework": "vue3",
     "uiLib": "element-plus",
     "buildTool": "vite",

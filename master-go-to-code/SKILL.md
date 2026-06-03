@@ -275,14 +275,15 @@ node .claude/skills/master-go-to-code/scripts/compare-tokens.mjs \
 
 写在 `.claude/settings.json`,绕不过去:
 
-| 触发 | hook | 拦截内容 |
-|---|---|---|
-| PreToolUse · Agent | `block-agent-refine.mjs` | 用 sub-Agent 跑精修任务(prompt 含"dom-tree/精修/refine") → exit 2 |
-| PreToolUse · AskUserQuestion | `auto-mode-guard.mjs` | auto 模式下问用户 → 拦下 |
-| PostToolUse · Write/Edit/MultiEdit dom-tree.json | `post-write-validate.mjs` | dom-tree.json 写入后:1) 检查残留 _children_placeholder;2) 跑 validate-dom-tree.mjs schema 校验。任一失败 exit 2 |
-| PostToolUse · Write/Edit/MultiEdit chunks-refined/*.refined.json | `post-write-refined-chunk.mjs` | 单个 refined chunk 写入后:1) JSON 可解析;2) 顶层 tag/attrs/style 三件套;3) shell chunk 必须含 `_children_placeholder` 且 ref 集合与 manifest 子 chunk 一致;4) absolute 子节点的直接父必须 positioned。任一失败 exit 2 |
+| 触发 | hook | 拦截内容 | 状态 |
+|---|---|---|---|
+| PreToolUse · AskUserQuestion / ExitPlanMode | `auto-mode-guard.mjs` | auto 模式下问用户 → 拦下(白名单 6 类必停点放行) | ✅ 已落盘 `.claude/hooks/` |
+| PreToolUse · Write/Edit/MultiEdit dom-tree | `enforce-rough-first.mjs` | 粗转 chunks-refined/* 未完成 → 不允许写精修 dom-tree | ✅ 已落盘 `.claude/hooks/` |
+| PostToolUse · Write/Edit dom-tree.json | (待补) `post-write-validate.mjs` | 写入后跑 validate-dom-tree.mjs schema 校验 + 残留 `_children_placeholder` 检查 | ⏳ 软约束:Step 2.5 需手动跑 `validate-dom-tree.mjs`,失败必停 |
+| PostToolUse · Write/Edit chunks-refined/*.refined.json | (待补) `post-write-refined-chunk.mjs` | 单 chunk 结构校验(tag/attrs/style 三件套 + ref 集合 + absolute 父定位) | ⏳ 软约束:违反请回 Step 2.2 重写 |
+| PreToolUse · Agent | (不再设) `block-agent-refine.mjs` | 用 sub-Agent 跑精修(prompt 含"精修/refine")→ exit 2 | ❌ 暂不上,实际中误伤多 |
 
-破坏这些约束的代价:工具调用直接被打回,模型必须修正后重发。
+破坏 ✅ 的约束 → 工具调用直接被打回,模型必须修正后重发。⏳ 的暂为铁律级软约束,以后视实际频率决定要不要补 hook。
 
 ## 铁律(6 条)
 

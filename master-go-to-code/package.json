@@ -1,6 +1,6 @@
 {
   "name": "master-go-to-code-skill",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "description": "MasterGo 设计稿 → dom-tree.json 脚本依赖（skill 自包含，不依赖项目）",
