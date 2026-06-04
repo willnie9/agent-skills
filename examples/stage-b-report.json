@@ -1,0 +1,25 @@
+{
+  "stage": "B",
+  "skill": "yapi-to-code",
+  "module": "clientList",
+  "timestamp": "2026-05-20T10:35:42.108Z",
+  "verdict": "pass",
+  "summary": {
+    "yapiProjectId": 28,
+    "apisMatched": 4,
+    "apisGenerated": 4,
+    "interfacesGenerated": 7,
+    "enumsGenerated": 3,
+    "hasAny": false,
+    "validationErrors": 0
+  },
+  "issues": [],
+  "artifacts": {
+    "new": [
+      "src/api/clientList/define.ts",
+      "src/api/clientList/api.ts",
+      "src/api/clientList/mock.ts"
+    ],
+    "modified": []
+  }
+}

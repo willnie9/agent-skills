@@ -1,10 +1,12 @@
-# Claude Code Skills · 长链路开发流水线
+# Agent Skill Pipeline · 多智能体技能编排框架
 
-> **版本**：v1.1.0（2026-06-03）· 6 个真 hook 落盘到 `hooks/`，SKILL.md 区分真 hook 与软约束铁律
+**一句自然语言指令 → 自动完成「设计稿解析 → 接口代码生成 → 页面组装 → 浏览器验收 → Bug 修复」全流程。**
 
-一套基于 Claude Code skill 体系的多 agent 编排，覆盖「设计稿 → 接口定义 → Vue3 页面 → E2E 验收 → Bug 修复」完整链路。
+7 个 AI Skill 协同编排，用 **JSON Schema 硬契约 + Harness Hook 拦截 + Stage Gate 门禁** 替代 prompt 约束——上下文越长 AI 越漂移，靠 prompt 写"别忘 X"扛不住，必须把约束做进 harness 层。
 
-核心做法是**用工程手段（schema + harness hook + 决策树）替代 prompt 求模型**——上下文越长 AI 越漂移，靠 prompt 写"别忘 X"扛不住，必须把约束做进 harness 层。
+> 当前实现基于 Claude Code skill 体系，但**架构层**（schema / hook / 决策树 / stage-gate）与具体 agent 框架无关。换到 LangGraph / AutoGen / QoderWork 等平台只需替换实现层脚本，骨架和契约不动。
+
+---
 
 ## 两层架构：架构通用，实现可换
 
@@ -34,6 +36,11 @@
                               ⬇️ stage-report.json + JSON Schema 硬契约校验 ⬇️
 
               ┌──────────────────────────────────────────────────┐
+              │  auto-ui-explorer · E2E 测试编排                   │
+              │  全模块扫描 → baseline 持久化 → 增量回归           │
+              └──────────────────────────────────────────────────┘
+
+              ┌──────────────────────────────────────────────────┐
               │  yunxiao-bug-fix ·业务 SOP                        │
               │  云效 Bug 全生命周期，可委托上面任一 skill         │
               └──────────────────────────────────────────────────┘
@@ -41,12 +48,47 @@
                               ⬇️ harness 层 hook 强制执行 ⬇️
 
               ┌──────────────────────────────────────────────────┐
-              │  .claude/hooks/ · 6 个 PreToolUse / PostToolUse   │
+              │  hooks/ · 6 个 PreToolUse / PostToolUse           │
               │  auto-mode-guard / validate-yunxiao-comment       │
               │  enforce-rough-first / enforce-source-read        │
               │  validate-stage-products / enforce-baseline-persist│
               └──────────────────────────────────────────────────┘
 ```
+
+## Quick Start
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/willnie9/agent-skills.git /tmp/agent-skills
+
+# 2. 在你的项目根目录创建 .claude/skills/ 并复制技能
+cd your-project
+mkdir -p .claude/hooks .claude/skills .claude/state .claude/results
+
+# 3. 复制所有技能（或按需选择）
+cp -r /tmp/agent-skills/{module-flow,master-go-to-code,yapi-to-code,frontend-page-design,playwright-skill,auto-ui-explorer,yunxiao-bug-fix,_shared} .claude/skills/
+cp /tmp/agent-skills/project.config.json .claude/skills/
+cp -r /tmp/agent-skills/schemas .claude/skills/
+cp /tmp/agent-skills/hooks/*.mjs .claude/hooks/
+cp /tmp/agent-skills/settings.sample.json .claude/settings.json
+
+# 4. 安装依赖（仅 master-go-to-code 需要）
+cd .claude/skills/master-go-to-code && npm install && cd -
+
+# 5. 配置 playwright-skill
+cp .claude/skills/playwright-skill/config/playwright-skill.config.example.json \
+   .claude/skills/playwright-skill/config/playwright-skill.config.json
+# 编辑配置文件，填入你的 baseURL、登录 selector
+
+# 6. 适配项目结构
+# 编辑 .claude/skills/project.config.json，填入你的 viewsDir、cacheDir、routerFiles 等
+```
+
+配置完成后，在 Claude Code 中说一句话即可触发：
+
+> "帮我建一个【客户列表】模块，设计稿链接是 `https://mastergo.com/...`，YApi 项目 ID 是 `28`。走 auto 模式直接跑全流程。"
+
+详细安装步骤见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ## Skill 目录约定
 
@@ -60,17 +102,17 @@
 
 ## Skill 清单
 
-| Skill | 角色 |
-|---|---|
-| [module-flow](./module-flow/SKILL.md) | 总调度器，5 个场景入口（新建 / 增量 / 迭代 / 重构） |
-| [master-go-to-code](./master-go-to-code/SKILL.md) | MasterGo DSL → dom-tree + 图片资源 |
-| [yapi-to-code](./yapi-to-code/SKILL.md) | YApi → TS 类型 + 请求函数 |
-| [frontend-page-design](./frontend-page-design/SKILL.md) | 组装 Vue SFC + 路由 + 菜单 |
-| [playwright-skill](./playwright-skill/SKILL.md) | MCP 浏览器 smoke 验收 |
-| [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | 自动化 UI 测试 + baseline 持久化 |
-| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | 云效 Bug 全生命周期 SOP |
+| Skill | 版本 | 角色 |
+|---|---|---|
+| [module-flow](./module-flow/SKILL.md) | v2.2.0 | 总调度器，5 个场景入口（新建 / 增量 / 迭代 / 重构） |
+| [master-go-to-code](./master-go-to-code/SKILL.md) | v2.3.0 | MasterGo DSL → dom-tree + 图片资源 |
+| [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | YApi → TS 类型 + 请求函数 |
+| [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | 组装 Vue SFC + 路由 + 菜单 |
+| [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.0.0 | 全模块 E2E 测试编排 + baseline 持久化 + 增量回归 |
+| [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | MCP 浏览器 smoke 验收 |
+| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | 云效 Bug 全生命周期 SOP |
 
-## 真 hook（已落盘到 `.claude/hooks/`）
+## Harness Hook（已落盘到 `hooks/`）
 
 `harness` 层强制执行的 6 个 hook，注册在项目根 `.claude/settings.json`：
 
@@ -83,7 +125,7 @@
 | `validate-stage-products.mjs` | PreToolUse on Task | Stage B/C/A.recall/D 启动前查上一阶段 stage-report.json 是否 pass/warn |
 | `enforce-baseline-persist.mjs` | PostToolUse on Write/Edit | SP 结果写完但 baseline.json >60s 未更新 → 警告 |
 
-剩下散落在 SKILL.md 里的「铁律 N 条」是软约束（依赖 Claude 自觉遵守），覆盖命名规范、交互礼仪、组件选用这类 AI 一般能做到的规则。**取舍标准：AI 天然倾向违反 + 失败级联严重的才上真 hook，其他用文字约束。**
+剩下散落在 SKILL.md 里的「铁律 N 条」是软约束（依赖 AI 自觉遵守），覆盖命名规范、交互礼仪、组件选用这类 AI 一般能做到的规则。**取舍标准：AI 天然倾向违反 + 失败级联严重的才上真 hook，其他用文字约束。** 详见 [设计决策](./docs/DESIGN-DECISIONS.md)。
 
 ## _shared 共享层
 
@@ -134,11 +176,14 @@ _shared/
 
 ## 文档导航
 
-- [《使用手册.md》](./使用手册.md) — 6 种触发场景的话术 + 行为契约
-- [《文件树.md》](./文件树.md) — 每个脚本和 schema 的具体作用
+- [Quick Start](#quick-start) — 5 分钟安装到你的项目
+- [《使用手册》](./使用手册.md) — 7 种触发场景的话术 + 行为契约
+- [《文件树》](./文件树.md) — 每个脚本和 schema 的具体作用
 - [docs/STATUS.md](./docs/STATUS.md) — 各 skill 版本和触发关键词速查
 - [docs/WORKFLOW.md](./docs/WORKFLOW.md) — 7 个场景的完整流程详解
 - [docs/GLOSSARY.md](./docs/GLOSSARY.md) — 术语中英对照
+- [docs/DESIGN-DECISIONS.md](./docs/DESIGN-DECISIONS.md) — 架构设计思路与 trade-off 分析
+- [examples/](./examples/) — 示例产物（stage-report、dom-tree 片段）
 
 ## 改 / 扩 skill 的约定
 

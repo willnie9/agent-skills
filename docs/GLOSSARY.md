@@ -9,13 +9,13 @@
 | `.claude/skills/` | Claude 技能目录 | 所有 skill 的根目录,Claude 启动时自动加载 |
 | `README.md` | 体系说明 | 给开发者看的「这套 skill 是什么、怎么用」 |
 | `STATUS.md` | 状态总览 | 版本矩阵 / 工具脚本清单 / 改进历史 |
-| `WORKFLOW.md` | 流程指南 | 6 个场景的详尽步骤(用 jdz 项目作演示) |
+| `WORKFLOW.md` | 流程指南 | 7 个场景的详尽步骤(用 jdz 项目作演示) |
 | `GLOSSARY.md` | 术语表(本文件) | 中英文含义对照 |
-| `RETROSPECTIVE.md` | 复盘/心得 | 整个 skill 体系演进的得失 + 踩坑 |
+| `DESIGN-DECISIONS.md` | 设计决策 | 架构设计思路与 trade-off 分析 |
 | `project.config.json` | 项目级共享配置 | 各 skill 读这份了解项目结构(viewsDir/cacheDir/HTTP 客户端等) |
 | `schemas/project-config.schema.json` | 项目配置 schema | 约束 project.config.json 的字段格式 |
 
-## skill 名(6 个)
+## skill 名(7 个)
 
 | 英文名 | 拆解 | 中文含义 | 触发关键词 |
 |---|---|---|---|
@@ -23,6 +23,7 @@
 | `master-go-to-code` | MasterGo(设计稿工具) → code | **MasterGo 设计稿转代码** | mastergo URL / "设计稿" / "还原 UI" |
 | `yapi-to-code` | YApi(接口管理工具) → code | **YApi 接口转代码** | YApi URL / "接口对接" |
 | `frontend-page-design` | frontend + page + design | **前端页面组装器** | "新增模块" / "组装页面" |
+| `auto-ui-explorer` | auto(自动) + UI + explorer(探索者) | **全模块 E2E 测试编排** | "跑一遍测试" / "全量回归" / "E2E" |
 | `playwright-skill` | Playwright(MCP 浏览器适配层) | **MCP 浏览器操作配置中心** | "看看 xxx 页面" / "打开 xxx 截个图" |
 | `yunxiao-bug-fix` | 云效 + bug fix | **云效 Bug 修复 SOP** | 云效链接 / "修 bug" |
 
@@ -106,6 +107,20 @@
 | `scripts/scan-perm-todos.mjs` | 扫描 TODO(perm) 占位 |
 | `scripts/stage-c-finalize.mjs` | Stage C 收尾(跑 vue-tsc + 扫 TODO + 产报告) |
 
+## auto-ui-explorer/
+
+| 英文名 | 中文含义 |
+|---|---|
+| `SKILL.md` | E2E 测试编排(脚本扫描 + 手工精修 + 跨页编排 + MCP 执行) |
+| `config/auto-ui-explorer.config.json` | 噪音黑名单 + 点击事件模式 + 表单组件类型 |
+| `schemas/ui-dictionary.schema.json` | Step 1 UI 词典输出 JSON Schema |
+| `schemas/baseline.schema.json` | baseline 持久化结构校验 |
+| `schemas/experience.schema.json` | experience 经验复用结构校验 |
+| `scripts/analyze-module.mjs` | 全目录递归扫盘器 |
+| `scripts/validate-dictionary.mjs` | Step 1 产物校验 |
+| `scripts/validate-flow-plan.mjs` | Step 2.6 SP 引用/覆盖率/空值拦截 |
+| `scripts/diff-baseline.mjs` | Step 0.7 增量判断(对比 baseline.json) |
+
 ## playwright-skill/
 
 | 英文名 | 中文含义 |
@@ -138,6 +153,9 @@
 | **smoke** | 烟雾测试(简单 flow 验证页面能打开 + 关键元素可见) |
 | **flow** | playwright 测试流程文件(`.flow.ts`) |
 | **e2e** | end-to-end 端到端测试 |
+| **baseline** | E2E 测试的持久化快照(页面列表/交互元素/路由路径),用于增量执行 |
+| **experience** | 跨次执行的经验复用库,记录已知的交互模式和踩坑点 |
+| **noise filter** | 噪音元素过滤(排除不可点击/不可见的元素,减少无效操作) |
 | **PROJECT-TASK** | 任务指令格式(贴在用户消息里的结构化任务) |
 | **mock** | 模拟接口数据(后端未就绪时用) |
 | **schema** | JSON Schema,机器可读的数据结构约束 |

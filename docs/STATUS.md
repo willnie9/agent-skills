@@ -1,6 +1,6 @@
 # Skill 体系状态总览
 
-> 一页快速了解 6 个 skill 的版本/依赖/触发方式/最近变更。详细文档见各自 `SKILL.md`。
+> 一页快速了解 7 个 skill 的版本/依赖/触发方式/最近变更。详细文档见各自 `SKILL.md`。
 
 **最后更新**:2026-06-03(v1.1.0 真 hook 落盘 + 区分硬/软约束)
 **当前活跃流水线**:module-flow → A → B → C → A.recall(DSL diff) → D,每个 Stage 切换有 stage-gate.mjs 把关
@@ -19,6 +19,7 @@
 | `yapi-to-code` | 跳类型映射预览,validate-define warn 不阻断 | 文件冲突仍三选 |
 | `frontend-page-design` | 跳文件清单预览,vue-tsc/scan-perm 不阻断 | 文件冲突仍三选 |
 | `playwright-skill` | MCP 浏览器操作,无 spec 无 runner | 配置文件缺失 / dev server 未起 |
+| `auto-ui-explorer` | 跳"确认扫描范围",diff-baseline 自动跑,baseline 自动更新 | baseline 校验 fail / validate-dictionary fail |
 | `yunxiao-bug-fix` | 跳 Step 2/5/6,自动选 C(验证+回写) | 验证 fail → 不回写 |
 
 ---
@@ -122,6 +123,9 @@ master-go-to-code      yapi-to-code      frontend-page-design
                   playwright-skill (v8.0.0)
                   (Stage D MCP 浏览器验证)
 
+auto-ui-explorer (v7.0.0)
+   E2E 测试编排，依赖 playwright-skill
+   Step 0 用 diff-baseline.mjs 做增量判断
 
 yunxiao-bug-fix (v3.2.0) ───┐
    独立业务线                 │
@@ -196,6 +200,7 @@ yunxiao-bug-fix (v3.2.0) ───┐
 | yapi-to-code | YApi 链接 / "接口对接" / "生成 API 代码" / "YApi" | `/yapi-to-code` |
 | frontend-page-design | "新增模块" / "组装页面" / "页面整合" | `/frontend-page-design` |
 | playwright-skill | "看看 xxx 页面" / "打开 xxx 看看" / "截个图" / "验证 UI" | `/playwright-skill` |
+| auto-ui-explorer | "跑一遍测试" / "全量回归" / "E2E" / "帮我测一下 xxx 模块" | `/auto-ui-explorer` |
 | yunxiao-bug-fix | 云效链接 / "修 bug" / "处理 <BUG-ID>" | `/yunxiao-bug-fix` |
 
 ---
@@ -213,7 +218,7 @@ yunxiao-bug-fix (v3.2.0) ───┐
 
 ### v2.2.0(2026-05-15)全 auto 化 + 统一 stage-report
 
-1. **6 个 skill 统一支持 auto 关键词**(yolo / 全跑 / 一气呵成 / 别问):全部 frontmatter 升 2.2.0 / 3.2.0 / 6.0.0
+1. **7 个 skill 统一支持 auto 关键词**(yolo / 全跑 / 一气呵成 / 别问):全部 frontmatter 升 2.2.0 / 3.2.0 / 6.0.0
 2. **统一 stage-report.schema.json**:所有 skill 产报告统一 verdict (`pass/warn/fail`) 格式
 3. **报告路径统一到 `.claude/results/<module>/`**:不再污染源码目录(`src/cache/...` / `src/views/...`)
 4. **抽 `_shared/lib/stage-gate.mjs`**:通用 gate 检查器,module-flow 在 Stage 切换点用它把关

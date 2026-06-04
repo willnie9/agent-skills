@@ -14,7 +14,7 @@
 
 ```bash
 # 1. 克隆本仓库到临时目录
-git clone https://github.com/willnie9/skills-open-source.git /tmp/skills-open-source
+git clone https://github.com/willnie9/agent-skills.git /tmp/agent-skills
 
 # 2. 在你的业务项目根目录执行
 cd your-project
@@ -23,24 +23,24 @@ cd your-project
 mkdir -p .claude/hooks .claude/skills .claude/state .claude/results
 
 # 4. 复制 skills（全部或按需选择）
-cp -r /tmp/skills-open-source/module-flow           .claude/skills/
-cp -r /tmp/skills-open-source/master-go-to-code     .claude/skills/
-cp -r /tmp/skills-open-source/yapi-to-code          .claude/skills/
-cp -r /tmp/skills-open-source/frontend-page-design  .claude/skills/
-cp -r /tmp/skills-open-source/playwright-skill      .claude/skills/
-cp -r /tmp/skills-open-source/yunxiao-bug-fix       .claude/skills/
-cp -r /tmp/skills-open-source/auto-ui-explorer      .claude/skills/
-cp -r /tmp/skills-open-source/_shared               .claude/skills/
+cp -r /tmp/agent-skills/module-flow           .claude/skills/
+cp -r /tmp/agent-skills/master-go-to-code     .claude/skills/
+cp -r /tmp/agent-skills/yapi-to-code          .claude/skills/
+cp -r /tmp/agent-skills/frontend-page-design  .claude/skills/
+cp -r /tmp/agent-skills/playwright-skill      .claude/skills/
+cp -r /tmp/agent-skills/yunxiao-bug-fix       .claude/skills/
+cp -r /tmp/agent-skills/auto-ui-explorer      .claude/skills/
+cp -r /tmp/agent-skills/_shared               .claude/skills/
 
 # 5. 复制顶层配置
-cp /tmp/skills-open-source/project.config.json      .claude/skills/project.config.json
-cp /tmp/skills-open-source/schemas/project-config.schema.json .claude/skills/schemas/
+cp /tmp/agent-skills/project.config.json      .claude/skills/project.config.json
+cp /tmp/agent-skills/schemas/project-config.schema.json .claude/skills/schemas/
 
 # 6. 复制 hooks
-cp /tmp/skills-open-source/hooks/*.mjs  .claude/hooks/
+cp /tmp/agent-skills/hooks/*.mjs  .claude/hooks/
 
 # 7. 配置 Claude Code settings（把 settings.sample.json 合并到 .claude/settings.json）
-cp /tmp/skills-open-source/settings.sample.json .claude/settings.json
+cp /tmp/agent-skills/settings.sample.json .claude/settings.json
 
 # 8. 安装 master-go-to-code 依赖
 cd .claude/skills/master-go-to-code && npm install && cd -

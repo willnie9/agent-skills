@@ -1,0 +1,104 @@
+{
+  "_comment": "这是 dom-tree.json 的简化片段，展示结构而非完整内容。实际文件可能包含 100+ 节点。",
+  "type": "container",
+  "tag": "div",
+  "className": "client-list-page",
+  "layout": "vertical",
+  "children": [
+    {
+      "type": "container",
+      "tag": "div",
+      "className": "search-area",
+      "layout": "horizontal",
+      "children": [
+        {
+          "type": "component",
+          "tag": "el-form",
+          "props": { "inline": true, "model": "searchForm" },
+          "children": [
+            {
+              "type": "component",
+              "tag": "el-form-item",
+              "props": { "label": "客户姓名" },
+              "children": [
+                {
+                  "type": "component",
+                  "tag": "el-input",
+                  "props": {
+                    "v-model": "searchForm.name",
+                    "placeholder": "请输入客户姓名",
+                    "clearable": true
+                  }
+                }
+              ]
+            },
+            {
+              "type": "component",
+              "tag": "el-form-item",
+              "props": { "label": "状态" },
+              "children": [
+                {
+                  "type": "component",
+                  "tag": "el-select",
+                  "props": {
+                    "v-model": "searchForm.status",
+                    "placeholder": "请选择状态",
+                    "clearable": true
+                  },
+                  "children": [
+                    { "type": "component", "tag": "el-option", "props": { "label": "在住", "value": 1 } },
+                    { "type": "component", "tag": "el-option", "props": { "label": "退住", "value": 2 } }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "tag": "div",
+      "className": "table-area",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "component",
+          "tag": "el-table",
+          "props": {
+            "data": "tableData",
+            "border": true,
+            "stripe": true
+          },
+          "children": [
+            {
+              "type": "component",
+              "tag": "el-table-column",
+              "props": { "prop": "name", "label": "客户姓名", "minWidth": 120 }
+            },
+            {
+              "type": "component",
+              "tag": "el-table-column",
+              "props": { "prop": "phone", "label": "联系电话", "minWidth": 140 }
+            },
+            {
+              "type": "component",
+              "tag": "el-table-column",
+              "props": { "prop": "roomName", "label": "房间号", "minWidth": 100 }
+            },
+            {
+              "type": "component",
+              "tag": "el-table-column",
+              "props": { "label": "操作", "fixed": "right", "width": 200 },
+              "children": [
+                { "type": "component", "tag": "el-button", "props": { "type": "primary", "link": true }, "text": "查看" },
+                { "type": "component", "tag": "el-button", "props": { "type": "primary", "link": true }, "text": "编辑" },
+                { "type": "component", "tag": "el-button", "props": { "type": "danger", "link": true }, "text": "删除" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

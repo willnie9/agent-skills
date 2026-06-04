@@ -1,6 +1,6 @@
 # Skills 全流程指南
 
-> 6 个场景的步骤表格。每个场景标注:**触发输入 / 关键步骤 / 产物 / 验证 / 失败处理 / 是否支持 auto**。
+> 7 个场景的步骤表格。每个场景标注:**触发输入 / 关键步骤 / 产物 / 验证 / 失败处理 / 是否支持 auto**。
 >
 > 配套阅读:[GLOSSARY.md](./GLOSSARY.md) 看英文名含义、[STATUS.md](./STATUS.md) 看版本和统一报告格式。
 
@@ -17,6 +17,7 @@ mastergo URL + "xxx 增量"                  → 场景 3 增量
 mastergo URL + "xxx 迭代"                  → 场景 4 迭代
 mastergo URL + "xxx 重构"                  → 场景 5 重构
 云效链接 / "修 bug"                        → 场景 6 云效 Bug
+"跑一遍测试" / "E2E" / "全量回归"          → 场景 7 E2E 回归
 ```
 
 ---
@@ -202,6 +203,25 @@ mastergo URL + "xxx 重构"                  → 场景 5 重构
 
 ---
 
+## 场景 7 · 全模块 E2E 回归测试
+
+**触发**:用户要求"跑一遍测试" / "全量回归" / "E2E" / "帮我测一下 xxx 模块"
+
+| Step | 干啥 | 产物 | 验证 | 失败处理 |
+|---|---|---|---|---|
+| 0 | 自检:playwright-skill 配置 + auto-ui-explorer 配置 | — | 配置文件存在 | 缺失 → 停,提示用户配置 |
+| 0.7 | diff-baseline.mjs:对比上次 baseline,确定增量范围 | 增量页面列表 | — | baseline 不存在 → 全量扫描 |
+| 1 | analyze-module.mjs:全目录递归扫描,生成 UI 词典 | ui-dictionary.json | validate-dictionary.mjs | 校验 fail → 停 |
+| 2 | 手工精修:AI 逐个页面确认交互元素(去噪音、补遗漏) | 精修后的词典 | — | — |
+| 2.6 | validate-flow-plan.mjs:校验 SP 引用 / 覆盖率 / 空值 | flow-plan | 校验 pass | fail → 停,报告缺失引用 |
+| 3 | MCP 浏览器执行:逐页面/逐流程用 playwright-skill 操作 | 截图 + 执行结果 | 截图可见 + 无报错 | 单页失败 → warn,继续下一页 |
+| 4 | 更新 baseline.json + experience.json | baseline + experience | — | — |
+| 5 | 汇报:通过/失败/跳过 的页面数 + 截图汇总 | 控制台 | — | — |
+
+**Auto 模式**:跳 Step 2 确认、Step 4 自动更新 baseline、diff-baseline 自动跑。
+
+---
+
 ## 5 个铁律(跨场景共用)
 
 | # | 铁律 | 适用 |
@@ -219,4 +239,4 @@ mastergo URL + "xxx 重构"                  → 场景 5 重构
 - 各 skill 内部细节 → 各 `<skill>/SKILL.md`
 - 文件英文名 → [GLOSSARY.md](./GLOSSARY.md)
 - 版本矩阵 + 工具脚本清单 → [STATUS.md](./STATUS.md)
-- 整体设计反思 → [RETROSPECTIVE.md](./RETROSPECTIVE.md)
+- 整体设计反思 → [DESIGN-DECISIONS.md](./DESIGN-DECISIONS.md)

@@ -1,0 +1,28 @@
+{
+  "stage": "A",
+  "skill": "master-go-to-code",
+  "module": "clientList",
+  "timestamp": "2026-05-20T10:32:15.421Z",
+  "verdict": "pass",
+  "summary": {
+    "designFile": "https://mastergo.com/file/xxxxxx?page_id=0:1",
+    "totalNodes": 147,
+    "domTreeDepth": 8,
+    "imagesExtracted": 12,
+    "svgPathsExtracted": 5,
+    "refined": true,
+    "validationErrors": 0
+  },
+  "issues": [],
+  "artifacts": {
+    "new": [
+      ".claude/skills/master-go-to-code/output/clientList/dom-tree.json",
+      ".claude/skills/master-go-to-code/output/clientList/svg-paths.json",
+      "src/assets/images/clientList/icon-search.png",
+      "src/assets/images/clientList/icon-filter.png",
+      "src/assets/images/clientList/icon-export.png",
+      "src/assets/images/clientList/icon-batch-delete.png"
+    ],
+    "modified": []
+  }
+}

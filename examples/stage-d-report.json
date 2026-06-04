@@ -1,0 +1,33 @@
+{
+  "stage": "D",
+  "skill": "playwright-skill",
+  "module": "clientList",
+  "timestamp": "2026-05-20T10:48:33.907Z",
+  "verdict": "pass",
+  "summary": {
+    "baseURL": "http://localhost:3000",
+    "pageURL": "http://localhost:3000/#/clientManage/clientList",
+    "loadTime": "1.2s",
+    "checksPerformed": 5,
+    "checksPassed": 5,
+    "screenshots": [
+      "playwright-skill/runtime/screenshots/clientList-smoke-page-loaded.png",
+      "playwright-skill/runtime/screenshots/clientList-smoke-table-visible.png",
+      "playwright-skill/runtime/screenshots/clientList-smoke-search-form.png"
+    ],
+    "checks": [
+      { "name": "页面可访问", "result": "pass", "detail": "HTTP 200, 页面渲染完成" },
+      { "name": "表格可见", "result": "pass", "detail": "el-table 存在且包含数据行" },
+      { "name": "搜索表单可见", "result": "pass", "detail": "3 个表单项均渲染" },
+      { "name": "分页组件可见", "result": "pass", "detail": "el-pagination 存在" },
+      { "name": "无控制台错误", "result": "pass", "detail": "0 个 console.error" }
+    ]
+  },
+  "issues": [],
+  "artifacts": {
+    "new": [
+      ".claude/results/clientList/stage-d-report.json"
+    ],
+    "modified": []
+  }
+}

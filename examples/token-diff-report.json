@@ -1,0 +1,52 @@
+{
+  "stage": "A.recall",
+  "skill": "master-go-to-code",
+  "module": "clientList",
+  "timestamp": "2026-05-20T10:44:05.219Z",
+  "verdict": "warn",
+  "summary": {
+    "tokensCompared": 42,
+    "tokensMatched": 38,
+    "tokensMismatched": 4,
+    "matchRate": "90.5%",
+    "mismatches": [
+      {
+        "token": "font-size",
+        "dslValue": "14px",
+        "scssValue": "13px",
+        "element": ".search-form .el-form-item__label",
+        "severity": "low"
+      },
+      {
+        "token": "color",
+        "dslValue": "#606266",
+        "scssValue": "#909399",
+        "element": ".table-header th",
+        "severity": "low"
+      },
+      {
+        "token": "border-radius",
+        "dslValue": "8px",
+        "scssValue": "4px",
+        "element": ".dialog-footer .el-button",
+        "severity": "medium"
+      },
+      {
+        "token": "padding",
+        "dslValue": "16px 20px",
+        "scssValue": "12px 16px",
+        "element": ".detail-dialog .el-dialog__body",
+        "severity": "low"
+      }
+    ]
+  },
+  "issues": [
+    "4 个 token 存在差异，建议人工对比确认是否为 Element Plus 组件默认样式覆盖"
+  ],
+  "artifacts": {
+    "new": [
+      ".claude/results/clientList/token-diff-report.json"
+    ],
+    "modified": []
+  }
+}
