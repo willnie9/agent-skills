@@ -13,3 +13,6 @@ playwright-skill/runtime/screenshots/*
 
 # playwright 实际生效配置（含项目 selector 等，不提交）
 playwright-skill/config/playwright-skill.config.json
+
+# 内部文档（token 优化方案，不开源）
+docs/TOKEN-OPTIMIZATION.md

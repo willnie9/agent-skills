@@ -183,7 +183,6 @@ _shared/
 - [docs/WORKFLOW.md](./docs/WORKFLOW.md) — 7 个场景的完整流程详解
 - [docs/GLOSSARY.md](./docs/GLOSSARY.md) — 术语中英对照
 - [docs/DESIGN-DECISIONS.md](./docs/DESIGN-DECISIONS.md) — 架构设计思路与 trade-off 分析
-- [docs/TOKEN-OPTIMIZATION.md](./docs/TOKEN-OPTIMIZATION.md) — Token 消耗分析与优化方案（含 ollama 本地化评估）
 - [examples/](./examples/) — 示例产物（stage-report、dom-tree 片段）
 
 ## 改 / 扩 skill 的约定
