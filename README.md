@@ -108,7 +108,7 @@ cp .claude/skills/playwright-skill/config/playwright-skill.config.example.json \
 | [master-go-to-code](./master-go-to-code/SKILL.md) | v2.3.0 | MasterGo DSL → dom-tree + 图片资源 |
 | [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | YApi → TS 类型 + 请求函数 |
 | [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | 组装 Vue SFC + 路由 + 菜单 |
-| [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.0.0 | 全模块 E2E 测试编排 + baseline 持久化 + 增量回归 |
+| [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.1.0 | 全模块 E2E 测试编排 + baseline 持久化 + 增量回归 |
 | [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | MCP 浏览器 smoke 验收 |
 | [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | 云效 Bug 全生命周期 SOP |
 
@@ -183,6 +183,7 @@ _shared/
 - [docs/WORKFLOW.md](./docs/WORKFLOW.md) — 7 个场景的完整流程详解
 - [docs/GLOSSARY.md](./docs/GLOSSARY.md) — 术语中英对照
 - [docs/DESIGN-DECISIONS.md](./docs/DESIGN-DECISIONS.md) — 架构设计思路与 trade-off 分析
+- [docs/TOKEN-OPTIMIZATION.md](./docs/TOKEN-OPTIMIZATION.md) — Token 消耗分析与优化方案（含 ollama 本地化评估）
 - [examples/](./examples/) — 示例产物（stage-report、dom-tree 片段）
 
 ## 改 / 扩 skill 的约定

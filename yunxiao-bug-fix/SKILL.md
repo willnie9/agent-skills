@@ -696,3 +696,16 @@ if (existsSync(screenshotsDir)) {
 **本地工具**
 - `curl`（下载截图附件）
 - `grep` / `git log`（Step 4 代码定位）
+
+---
+
+## Changelog
+
+- **v3.2.0(2026-05-15)** — Auto 化 + 批量 bug 链路
+  - URL 形态识别（单 bug vs 多 bug vs 视图）
+  - 批量改 bug：Phase 1 全改 → Phase 2 批量验证 → Phase 3 统一回写云效
+  - 验证失败停下问用户,不默认回写;回写时上传 playwright 截图作为云效附件
+- **v3.1.0(2026-05-15)** — 项目隔离
+  - 评论模板从 `.agents/config/` 搬到 `.claude/skills/yunxiao-bug-fix/config/`,去 .agents 依赖
+- **v3.0.0(2026-05-13)** — 大厂风格重构
+  - 全生命周期 SOP,委托 playwright-skill 做浏览器验证

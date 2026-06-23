@@ -1,7 +1,7 @@
 ---
 name: auto-ui-explorer
 description: UI 自动化全流程 E2E 测试编排技能。基于"脚本全栈扫描 -> 大模型手工精修 -> 跨页流程编排 -> MCP单点执行"的高阶测试体系。当用户要求测试完整业务流、集成测试或传入整个模块路径时触发。
-version: 7.0.0
+version: 7.1.0
 ---
 
 # Auto UI Explorer · 全模块 E2E 测试编排大师
@@ -377,52 +377,18 @@ node .claude/skills/auto-ui-explorer/scripts/validate-dictionary.mjs \
 用例编写规范详见 [references/single-point-spec.md](./references/single-point-spec.md)。
 表单测试数据生成规则详见 [references/form-data-generation.md](./references/form-data-generation.md)。
 
-**★ 搜索/筛选类 SP 的增强要求（结合 API 审计）**：
+**★ 搜索/筛选类 SP**：如果 Step 0.9 审计报告标记了某列表接口"🔴 空参数调用"或"分页参数未传"，对应搜索 SP 必须增加参数传递验证。
+**★ 分页类 SP**：所有含分页的列表页，必须生成专门的分页验证 SP。
 
-如果 Step 0.9 的审计报告中标记了某个列表接口"🔴 空参数调用"或"分页参数未传"，则对应的搜索/筛选 SP 必须增加以下验证步骤：
-
-```markdown
-### SP-XXX: [index.vue] 列表页搜索
-- ...原有步骤...
-- 额外验证（来自 API 审计）:
-  - [ ] browser_console_messages() 检查是否有网络请求发出
-  - [ ] 搜索后表格数据是否变化（对比搜索前后的行数）
-  - [ ] 如果数据未变化 → 标记 [!][API参数未传递] 搜索参数未传给接口函数
-```
-
-**★ 分页类 SP 的增强要求**：
-
-所有含分页的列表页，必须生成一个专门的分页验证 SP：
-
-```markdown
-### SP-XXX: [xxx.vue] 分页功能验证
-- 前置条件: 在列表页，数据已加载
-- 操作步骤:
-  1. 记录当前底部分页显示的总条数 N
-  2. 记录当前表格行数 M
-  3. 验证 N >= M（总条数应大于等于当前页行数）
-  4. 如果有翻页按钮且 N > pageSize，点击下一页
-  5. 验证页码变化，数据刷新
-- 预期结果: 分页总数与数据一致，翻页正常
-- 状态: [ ]
-```
+详细模板（搜索 SP / 分页 SP / CRUD 变更验证）详见 [references/execution-templates.md](./references/execution-templates.md)。
 
 #### Step 2.4 · 输出集成测试流程 (Integration Flow)
 
 将单点测试用例**按业务语义串联**成完整的跨页面流程。每个 Flow 必须以 `browser_navigate` 重置到初始路由结尾。
 
-**★ CRUD 数据变更验证（必须包含）**：
+**★ CRUD 数据变更验证（必须包含）**：每个含"新增"操作的 Flow，完成后必须验证列表行数变化。
 
-每个包含"新增"操作的 Flow，在新增完成后必须增加以下验证步骤：
-
-```markdown
-N. [数据变更验证] 新增完成后:
-   a. browser_snapshot() 获取当前列表
-   b. 记录新增后的表格行数 M2
-   c. 对比新增前的行数 M1，验证 M2 > M1（或新增的数据出现在列表中）
-   d. 验证底部分页总条数是否同步更新
-   e. 如果 M2 == M1 → 标记 [!][数据变更未生效] 新增后列表未刷新
-```
+详细模板（CRUD 变更验证 / 集成串联数据一致性检查）详见 [references/execution-templates.md](./references/execution-templates.md)。
 
 #### Step 2.5 · 自检流程 (Self Review)
 
@@ -475,27 +441,7 @@ node .claude/skills/auto-ui-explorer/scripts/validate-flow-plan.mjs \
 
 ### Step 3 · 检查点（展示剧本等用户确认）
 
-```markdown
-📋 E2E 测试编排完成
-
-测试模式: mock / real-api
-API 审计: ✅ 通过 / ⚠️ N 个问题
-扫描文件: N 个
-过滤噪音组件: M 个
-生成单点用例: P 个 (SP-001 ~ SP-0XX)
-  - 含搜索验证 SP: X 个
-  - 含分页验证 SP: Y 个
-  - 含数据变更验证: Z 个
-编排集成流程: Q 条 (Flow-001 ~ Flow-0XX)
-覆盖弹窗空值拦截: R 个
-词典校验: ✅ 通过
-剧本校验: ✅ 通过 / ⚠️ N 个警告
-
-剧本已落盘: .claude/skills/auto-ui-explorer/output/<module>-E2E-FLOW-PLAN.md
-API审计报告: .claude/skills/auto-ui-explorer/output/<module>-API-AUDIT.md
-
-确认无误后，将启动 Playwright MCP 逐点执行。是否开始？
-```
+展示扫描统计 + 用例数 + 校验结果，等用户确认。报告模板详见 [references/execution-templates.md](./references/execution-templates.md)。
 
 **auto 模式跳过此步**，直接进 Step 4。
 
@@ -520,241 +466,53 @@ SP 执行完毕 → 立即更新两个文件：
 
 #### 4.1 执行前初始化 ★★★
 
-**在执行第一个 SP 之前**，必须完成以下初始化：
+**在执行第一个 SP 之前**，必须完成初始化：navigate + 确认登录态 + 记录列表初始状态（M0/T0）+ 清空控制台。自检证据写入 FLOW-PLAN 头部。
 
-```
-1. browser_navigate(baseURL + 初始路由)
-2. browser_snapshot() → 确认登录态正常
-3. 如果是列表页:
-   a. 等待表格渲染完成（检查 snapshot 中是否有表格行）
-   b. 记录初始状态:
-      - 初始表格行数 = M0
-      - 初始分页总条数 = T0（从分页组件读取）
-   c. 将 M0 和 T0 记录到执行上下文中，供后续验证使用
-4. browser_console_messages() → 清空/记录初始控制台
-```
-
-**自检证据**：必须在 E2E-FLOW-PLAN.md 头部或执行日志中记录：
-```markdown
-## 执行初始化
-- 初始表格行数: M0 = <数字>
-- 初始分页总条数: T0 = <数字>
-- 登录态: ✅
-- 初始化时间: <时间戳>
-```
+详细步骤和证据模板详见 [references/execution-templates.md](./references/execution-templates.md)。
 
 #### 4.2 单点执行标准流程
 
-对于 Flow 中引用的每一个 SP 用例，执行如下标准操作序列：
+每个 SP 执行标准序列：navigate → snapshot 确认页面 → 表单 Fuzzing + 逐字段注入 → 提交 → snapshot 验证 → 截图 → 更新状态标记。
 
-```
-对于每个 SP-XXX:
-  1. browser_navigate(baseURL + SP的前置路由)（如果不在正确页面）
-  2. browser_snapshot() → 确认在正确页面（检查 URL / 关键文本）
-  3. 如果 SP 包含表单:
-     a. 先执行空值提交测试（Fuzzing）:
-        - 直接 browser_click 提交按钮
-        - browser_snapshot() 检查红字校验
-        - browser_take_screenshot(filename="runtime/screenshots/<module>-SP-XXX-fuzz.png")
-     b. 再按测试数据表逐字段注入:
-        - el-input → browser_type(ref, value)
-        - el-select/CommonSelect → browser_click 展开 → browser_click 选项
-        - el-radio → browser_click 目标 radio
-        - el-date-picker → browser_click → 选日期
-     c. browser_click 提交按钮
-     d. browser_snapshot() 验证弹窗关闭或页面变化
-  4. browser_take_screenshot(filename="runtime/screenshots/<module>-SP-XXX-done.png")
-  5. 更新 E2E_FLOW_PLAN.md（状态标记规范详见 [references/status-markers.md](./references/status-markers.md)）:
-     - 功能完全正常 → `[x]`
-     - 前端正确但无数据 → `[x][前端正常·无数据]`
-     - 前端代码 Bug → `[!][前端问题]` 或具体标签如 `[!][API参数未传递]`
-     - 后端接口问题 → `[!][后端问题]` 或 `[!][接口问题]`
-     - Mock 实现不完整 → `[!][Mock问题]` 或 `[!][Mock数据未变更]`
-     - 行为存疑 → `[?][待确认]`
-     - 被前置步骤阻断 → `[SKIP]`
-```
+状态标记映射（详见 [references/status-markers.md](./references/status-markers.md)）：正常 `[x]` / 前端正常无数据 `[x][前端正常·无数据]` / 前端 Bug `[!][前端问题]` / 后端问题 `[!][接口问题]` / Mock 问题 `[!][Mock问题]` / 存疑 `[?][待确认]` / 阻断 `[SKIP]`。
+
+详细操作序列详见 [references/execution-templates.md](./references/execution-templates.md)。
 
 #### 4.3 搜索/筛选 SP 的增强执行 ★★★
 
-搜索类 SP 执行时，必须额外做以下验证：
-
-```
-对于搜索/筛选类 SP:
-  1. 搜索前:
-     a. browser_snapshot() → 记录搜索前表格行数 M_before
-  2. 填入搜索条件 + 点击搜索
-  3. 搜索后:
-     a. browser_snapshot() → 记录搜索后表格行数 M_after
-     b. 对比 M_before vs M_after:
-        - M_after < M_before → ✅ 搜索有过滤效果
-        - M_after == M_before 且搜索条件不为空:
-          ├─ mock 模式 → 标记 [?][待确认] Mock 未实现搜索过滤逻辑
-          └─ real-api 模式 → 标记 [!][搜索无效] 后端未按参数过滤
-     c. browser_console_messages() → 检查是否有 API 请求发出
-  4. 点击重置:
-     a. browser_snapshot() → 确认筛选条件已清空
-     b. 记录重置后行数 M_reset，验证 M_reset >= M_after
-```
+搜索类 SP 必须额外验证：搜索前后行数对比（M_before vs M_after）+ API 请求是否发出 + 重置后行数恢复。mock 模式未过滤标 `[?][待确认]`，real-api 模式未过滤标 `[!][搜索无效]`。
 
 #### 4.4 分页 SP 的增强执行 ★★★
 
-```
-对于分页验证 SP:
-  1. browser_snapshot() → 读取分页组件:
-     a. 当前页码 P
-     b. 总条数 T
-     c. 每页条数 S
-     d. 表格实际行数 M
-  2. 验证逻辑一致性:
-     a. T >= M（总条数 >= 当前页行数）
-     b. 如果 T > S → 应该有多页，验证翻页按钮可点击
-     c. 如果 T <= S → 只有一页，翻页按钮应禁用
-  3. 翻页测试（如果有多页）:
-     a. 点击下一页
-     b. browser_snapshot() → 验证页码变为 P+1，数据刷新
-     c. 点击返回上一页 → 验证数据恢复
-  4. 失败标记:
-     - T == 0 但表格有数据 → [!][分页总数错误] total 未正确返回
-     - 翻页后数据不变 → [!][分页功能无效]
-```
+分页 SP 必须验证：T>=M 逻辑一致性 + 翻页按钮可用性 + 翻页后数据刷新。失败标记 `[!][分页总数错误]` / `[!][分页功能无效]`。
 
 #### 4.5 CRUD 数据变更 SP 的增强执行 ★★★
 
-```
-对于新增/删除/编辑操作:
-  1. 操作前:
-     a. 记录列表行数 M_before
-     b. 记录分页总条数 T_before
-  2. 执行新增/删除/编辑操作
-  3. 操作后:
-     a. 如果需要返回列表页 → browser_navigate
-     b. browser_snapshot() → 记录:
-        - 列表行数 M_after
-        - 分页总条数 T_after
-     c. 验证:
-        ├─ 新增: M_after > M_before 或 T_after > T_before
-        ├─ 删除: M_after < M_before 或 T_after < T_before
-        └─ 编辑: 目标行数据已变化
-     d. 如果数据未变化:
-        ├─ mock 模式 → [!][Mock数据未变更] Mock 拦截器未正确模拟 CRUD
-        └─ real-api 模式 → [!][接口问题] 后端操作未生效或列表未刷新
-```
+CRUD SP 必须验证：操作前后行数/总条数变化。新增 M_after>M_before，删除 M_after<M_before。mock 未变更标 `[!][Mock数据未变更]`，real-api 未生效标 `[!][接口问题]`。
 
 **失败分类标签**：详见 [references/failure-tags.md](./references/failure-tags.md)。
 
-| 标签 | 含义 |
-|------|------|
-| `[!][数据问题]` | 表格为空/选项为空，Mock 数据不足导致流程走不通 |
-| `[!][接口问题]` | 接口 404/500，后端未对接 |
-| `[!][元素定位失败]` | snapshot 中找不到目标按钮/输入框 |
-| `[!][校验不符预期]` | 红字没出现/出现了不该出现的错误 |
-| `[!][路由跳转失败]` | 点击后未跳转到预期页面 |
-| `[!][API参数未传递]` | ★ 新增：搜索/筛选参数未传给接口函数 |
-| `[!][分页总数错误]` | ★ 新增：分页 total 与实际数据不一致 |
-| `[!][Mock数据未变更]` | ★ 新增：CRUD 操作后 Mock 层数据未变化 |
-| `[!][搜索无效]` | ★ 新增：搜索后数据未过滤 |
-| `[!][分页功能无效]` | ★ 新增：翻页后数据未刷新 |
-| `[?][待确认]` | 不确定是 bug 还是正常行为，需要人工判定 |
-
 ### Step 5 · 集成流程串联验证
 
-单点全部执行完毕后，按 Flow 的顺序做一轮**完整串联**：
-- 从 Flow 的第一步开始，**不刷新页面**地连续执行
-- 验证跨页面的**数据传递**是否正确（如新增后列表是否多了一条）
+单点全部执行完毕后，按 Flow 顺序做一轮**完整串联**：
+- 从 Flow 第一步开始，**不刷新页面**地连续执行
+- 验证跨页面**数据传递**是否正确（如新增后列表是否多了一条）
 - 验证**状态残留**是否影响后续步骤
+- **★ 串联结束后必须做数据一致性检查**：对比 M_final vs M0，含新增应 >、含删除应 <、仅查看/编辑应 ==
 
-**★ 串联验证必须包含的数据一致性检查**：
-
-```
-串联结束后，回到列表初始页面:
-  1. browser_snapshot() → 记录最终状态:
-     - 最终表格行数 M_final
-     - 最终分页总条数 T_final
-  2. 与 Step 4.1 记录的初始状态对比:
-     - 如果本次 Flow 包含新增操作 → M_final 应 > M0
-     - 如果本次 Flow 包含删除操作 → M_final 应 < M0
-     - 如果只有查看/编辑操作 → M_final 应 == M0
-  3. 不一致 → 标记具体原因
-```
+详细检查模板详见 [references/execution-templates.md](./references/execution-templates.md)。
 
 ### Step 6 · 产出测试报告
 
-落盘到 `.claude/skills/auto-ui-explorer/output/<module>-E2E-REPORT.md`。
-
-包含：
-
-```markdown
-# E2E 测试报告 — <模块名>
-
-## 测试概况
-
-| 项目 | 值 |
-|-----|-----|
-| 测试模式 | mock / real-api |
-| 测试时间 | <时间> |
-| API 审计 | ✅ / ⚠️ N 个问题 |
-| 总 SP 数 | N |
-| ✅ 通过 | X |
-| ❌ 失败 | Y |
-| ❓ 待确认 | Z |
-| 页面覆盖 | M/N |
-| 按钮覆盖 | M/N |
-| 弹窗覆盖 | M/N |
-
-## 单点结果明细
-
-| SP编号 | 功能描述 | 状态 | 标签 | 截图 | 备注 |
-|--------|---------|------|------|------|------|
-
-## 集成流程结果
-
-| Flow编号 | 描述 | 结果 | 数据一致性 |
-|---------|------|------|-----------|
-
-## 问题汇总
-
-### 🔴 阻断问题
-### 🟡 非阻断问题
-### 🟢 已通过
-
-## 截图清单
-```
+落盘到 `.claude/skills/auto-ui-explorer/output/<module>-E2E-REPORT.md`。报告模板详见 [references/execution-templates.md](./references/execution-templates.md)。
 
 ### Step 7 · 完成自检 + 持久化 (Completion Self-Check) ★★★
 
-**所有 Step 执行完毕后，必须做最终自检 + 落盘 baseline/experience**：
+**所有 Step 执行完毕后，必须做最终自检 + 落盘 baseline/experience**。自检清单详见 [references/execution-templates.md](./references/execution-templates.md)。
 
-```
-完成自检清单（必须逐项确认）:
-  ☐ Step 0.9 API 审计报告已落盘
-  ☐ Step 1 词典已生成并通过校验
-  ☐ Step 2 剧本已生成并通过校验
-  ☐ Step 4 所有 SP 都已执行（无遗漏 [ ] 状态，增量模式下 SKIP-UNCHANGED 不算遗漏）
-  ☐ Step 4 所有截图已保存
-  ☐ Step 5 集成串联已执行
-  ☐ Step 6 测试报告已落盘到 output/<module>-E2E-REPORT.md
-  ☐ 搜索/重置功能已验证（如有）
-  ☐ 分页功能已验证（如有）
-  ☐ CRUD 数据变更已验证（如有）
-  ☐ E2E-FLOW-PLAN.md 中无残留 [ ] 标记（全部为 [x] 或 [!] 或 [?] 或 [SKIP-UNCHANGED]）
-  ☐ ★ baseline.json 已落盘（含所有 SP 的最终状态）
-  ☐ ★ experience.json 已落盘（含本次积累的测试数据和经验）
-```
-
-**★ baseline.json 最终落盘**（Step 4 已实时写，这里做最终校验）：
-
-```bash
-# 校验 baseline 结构
-node -e "
-const fs = require('fs');
-const b = JSON.parse(fs.readFileSync('.claude/skills/auto-ui-explorer/output/<module>-baseline.json'));
-const pending = b.results.filter(r => r.status === 'pending').length;
-if (pending > 0) { console.error('⚠️ 还有 ' + pending + ' 个 SP 未执行'); process.exit(1); }
-console.log('✅ baseline 完整: ' + b.results.length + ' 个 SP 全部有结果');
-"
-```
-
-**★ experience.json 最终落盘**：确认本次新增的经验条目已写入。
+核心校验：
+- baseline.json：无 pending 状态的 SP（Step 4 已实时写，这里做最终校验）
+- experience.json：本次新增经验条目已写入
 
 **任一项未完成 → 禁止向用户报告"测试完成"**。
 
@@ -917,6 +675,11 @@ console.log('✅ baseline 完整: ' + b.results.length + ' 个 SP 全部有结�
 ```
 
 ## Changelog
+
+### v7.1.0 (2026-06-23)
+- **★ Token 优化**：SKILL.md 从 975 行瘦身到 733 行（-25%），将 Step 2/4/5/6/7 的详细执行模板拆到 `references/execution-templates.md` 按需加载
+- 决策树、铁律 14 条、Hooks 16 条、Gate 逻辑、反模式全部保留在 SKILL.md 不动
+- 新增 `references/execution-templates.md`：搜索/分页/CRUD SP 模板、执行初始化、标准执行流程、报告模板、完成自检清单
 
 ### v7.0.0 (2026-06-01)
 - **★ 新增增量执行机制**：Step 0.7 读 baseline + git diff，只重测代码改过的 SP，节省 50-70% token

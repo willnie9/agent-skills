@@ -190,7 +190,7 @@ Claude 会按 SKILL.md §3 的流程操作,完成后:
 
 ---
 
-## 8. 改造历史
+## 8. Changelog
 
 - **v8.0.0(2026-05-21)** — **MCP-first 全面瘦身**:
   - 砍掉 `flows/` `flows-templates/` `playwright.config.ts` `package.json` `node_modules` `run.cjs`

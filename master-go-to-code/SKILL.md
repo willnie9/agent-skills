@@ -363,3 +363,18 @@ node .claude/skills/master-go-to-code/scripts/compare-tokens.mjs \
 }
 ```
 
+---
+
+## Changelog
+
+- **v2.3.0(2026-05-21)** — Auto mode 增强 + Stage A.recall 产物锚点
+  - 跳过"报告 + 等用户继续"检查点,`compare-tokens.mjs` 失败不阻断(verdict=fail 也继续)
+  - Stage A.recall 升级为产物锚点,机制层面无法跳过
+- **v2.2.0(2026-05-15)** — 全 auto 化 + 统一 stage-report
+  - 统一 stage-report.schema.json 格式,末尾产 stage-a-report.json
+  - 产物路径迁到 `.claude/results/<module>/`,不污染源码目录
+- **v2.1.0(2026-05-15)** — 项目隔离 / 配置化
+  - skill 自包含,npm 依赖自带,项目结构改读 `project.config.json`
+- **v2.0.0(2026-05-13)** — 大厂风格重构
+  - SKILL.md 行数 ↓ 70%,引入 JSON Schema 硬契约 + _shared 共享层
+
