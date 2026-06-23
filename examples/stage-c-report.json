@@ -18,12 +18,12 @@
   ],
   "artifacts": {
     "new": [
-      "src/views/clientList/Index.vue",
-      "src/views/clientList/components/ClientDetailDialog.vue",
-      "src/views/clientList/components/SearchForm.vue"
+      "src/views/<module>/Index.vue",
+      "src/views/<module>/components/DetailDialog.vue",
+      "src/views/<module>/components/SearchForm.vue"
     ],
     "modified": [
-      "src/router/modules/clientManage.ts",
+      "src/router/modules/<module>.ts",
       "src/hooks/useMenu.ts"
     ]
   }

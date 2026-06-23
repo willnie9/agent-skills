@@ -121,7 +121,7 @@ B. **real-api 模式** — 测试真实后端接口（后端已就绪，验证�
   ├─ "帮我集成测试一下 xxx 模块"     ──→ Step 0.5 模糊定位(grep router 找目录)
   │
   ├─ 传入模块全目录路径               ──→ 直接 Step 0 自检
-  │     如 src/views/medicalCare/rehabilitation/
+  │     如 src/views/<module>/<sub-module>/
   │
   ├─ 传入单个 .vue 文件               ──→ 拒绝，提示"请传模块目录或说模块名"
   │
@@ -365,7 +365,7 @@ node .claude/skills/auto-ui-explorer/scripts/validate-dictionary.mjs \
 
 #### Step 2.2 · 提取路由拓扑 (Route Topology)
 
-阅读模块对应的路由文件（如 `src/router/medicalCareRouter.ts`），建立路由拓扑图。
+阅读模块对应的路由文件（如 `src/router/<module>Router.ts`），建立路由拓扑图。
 同时利用词典中的 `routerPushCalls[]` + 阅读源码中的 `router.push` / `router.replace` 调用，建立**页面间跳转关系**。
 
 #### Step 2.3 · 输出单点测试清单 (Single Point Test Cases)

@@ -7,7 +7,7 @@
   "properties": {
     "module": {
       "type": "string",
-      "description": "模块名（如 rehabilitation）"
+      "description": "模块名（如 <module>）"
     },
     "lastRun": {
       "type": "string",

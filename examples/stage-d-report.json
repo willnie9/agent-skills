@@ -6,7 +6,7 @@
   "verdict": "pass",
   "summary": {
     "baseURL": "http://localhost:3000",
-    "pageURL": "http://localhost:3000/#/clientManage/clientList",
+    "pageURL": "http://localhost:3000/#/<parentModule>/clientList",
     "loadTime": "1.2s",
     "checksPerformed": 5,
     "checksPassed": 5,

@@ -70,10 +70,10 @@ E2E-FLOW-PLAN.md 中每个 SP/Flow 步骤的 `状态` 字段，使用以下标�
 - 原始问题: [!][API参数未传递] getRehabRecordList() 传空 {}
 - 修复内容: 修改 api.ts 添加入参类型，修改 FreeServiceTable.vue 传递搜索参数
 - 修改文件:
-  - `src/cache/medicalCare/rehabilitation/api.ts` — getRehabRecordList 增加入参
-  - `src/views/medicalCare/rehabilitation/components/FreeServiceTable.vue` — 调用时传参
+  - `src/cache/<module>/<sub-module>/api.ts` — getXxxList 增加入参
+  - `src/views/<module>/<sub-module>/components/XxxTable.vue` — 调用时传参
 - 重测结果: ✅ 搜索后数据变化，参数正确传递
-- 截图: runtime/screenshots/rehabilitation-SP-001-fixed.png
+- 截图: runtime/screenshots/<module>-SP-001-fixed.png
 ```
 
 ### 模式 B：`report-only` — 仅记录模式

@@ -9,6 +9,9 @@
  * 1. 配置下面的 baseURL 和 token
  * 2. 运行: node .claude/skills/master-go-to-code/scripts/seed-test-data.mjs
  * 3. 选择要添加的数据类型
+ *
+ * ⚠️ 本文件为通用占位模板，所有业务数据均为 <placeholder>。
+ *    使用前请替换为你的项目实际业务数据。
  */
 
 import https from 'https';
@@ -18,33 +21,35 @@ import readline from 'readline';
 // ==================== 配置 ====================
 const CONFIG = {
   // 本地开发环境地址（通过 vite proxy 代理）
-  baseURL: 'http://localhost:5173/proxy_api/gw/portal',
+  baseURL: 'http://localhost:5173/proxy_api/<your-api-prefix>',
   // 从浏览器 Cookie 中获取 项目 token
-  token: 'c87a5e5dc6b64902b9bdcc4832f9532e',
+  token: '<your-project-token>',
   // 设备ID
-  deviceId: '3089ad15-d936-4664-9798-1123fdc85ccc',
+  deviceId: '<your-device-id>',
   // 完整的 cookie
   cookie: '<your-project-cookie>',
 };
 
 // ==================== Mock 数据生成器 ====================
+// 以下生成函数均为通用占位实现，字段名和结构参考常见 CRUD 接口。
+// 使用时请根据你的项目实际接口字段替换。
 
 /**
- * 生成免费示例项 mock 数据
+ * 生成示例列表项 mock 数据
  */
-function generateFreeServiceItems(count = 5) {
-  const categories = ['<category-1>', '<category-2>', '<category-3>'];  // 改成项目实际业务分类
+function generateSampleItems(count = 5) {
+  const categories = ['<category-1>', '<category-2>', '<category-3>'];
   const names = [
-    '日常起居照料',
-    '康复训练指导',
-    '心理咨询服务',
-    '书法绘画活动',
-    '<示例数据-1>',
-    '营养膳食指导',
-    '陪同就医服务',
-    '生日庆祝活动',
-    '节日文艺演出',
-    '户外散步陪伴',
+    '<示例项-1>',
+    '<示例项-2>',
+    '<示例项-3>',
+    '<示例项-4>',
+    '<示例项-5>',
+    '<示例项-6>',
+    '<示例项-7>',
+    '<示例项-8>',
+    '<示例项-9>',
+    '<示例项-10>',
   ];
 
   const items = [];
@@ -53,12 +58,10 @@ function generateFreeServiceItems(count = 5) {
       id: 1000 + i,
       name: names[i % names.length],
       category: categories[i % categories.length],
-      description: `${names[i % names.length]}的详细说明，包括服务内容、服务标准等信息。`,
+      description: `${names[i % names.length]}的详细说明`,
       serviceType: 'single',
       billModel: 1,
-      price: null,
-      priceUnit: null,
-      rate: '每周2次',
+      rate: '<计费方式>',
       isActive: 1,
       createTime: Date.now() - i * 24 * 60 * 60 * 1000,
     });
@@ -67,27 +70,27 @@ function generateFreeServiceItems(count = 5) {
 }
 
 /**
- * 生成增值示例项 mock 数据
+ * 生成示例增值项 mock 数据
  */
-function generateValueAddServiceItems(count = 5) {
-  const categories = ['<category-1>', '<category-2>', '<category-3>'];  // 改成项目实际业务分类
+function generateSampleValueAddItems(count = 5) {
+  const categories = ['<category-1>', '<category-2>', '<category-3>'];
   const names = [
-    '专业按摩服务',
-    '理发美容服务',
-    '洗衣熨烫服务',
-    '陪同购物服务',
-    '专车接送服务',
-    '营养配餐服务',
-    '中医理疗服务',
-    '足浴保健服务',
-    '代购代办服务',
-    '家政清洁服务',
+    '<增值项-1>',
+    '<增值项-2>',
+    '<增值项-3>',
+    '<增值项-4>',
+    '<增值项-5>',
+    '<增值项-6>',
+    '<增值项-7>',
+    '<增值项-8>',
+    '<增值项-9>',
+    '<增值项-10>',
   ];
-  
+
   const billModels = [
-    { model: 1, price: 50, unit: '次' },
-    { model: 2, price: 500, unit: '月' },
-    { model: 1, price: 30, unit: '次' },
+    { model: 1, price: 50, unit: '<unit-1>' },
+    { model: 2, price: 500, unit: '<unit-2>' },
+    { model: 1, price: 30, unit: '<unit-1>' },
   ];
 
   const items = [];
@@ -97,90 +100,79 @@ function generateValueAddServiceItems(count = 5) {
       id: 2000 + i,
       name: names[i % names.length],
       category: categories[i % categories.length],
-      description: `${names[i % names.length]}的详细说明，包括服务内容、服务标准、收费说明等信息。`,
+      description: `${names[i % names.length]}的详细说明`,
       serviceType: 'single',
       billModel: billInfo.model,
       price: billInfo.price,
       priceUnit: billInfo.unit,
-      rate: billInfo.model === 1 ? '按次计费' : '包月服务',
+      rate: billInfo.model === 1 ? '<按次计费>' : '<包月服务>',
       isActive: 1,
       createTime: Date.now() - i * 24 * 60 * 60 * 1000,
     });
   }
   return items;
 }
-function generateElderList(count = 10) {
-  const surnames = ['张', '李', '王', '刘', '陈', '杨', '赵', '黄', '周', '吴'];
-  const names = ['明', '华', '芳', '丽', '强', '军', '敏', '静', '伟', '娟'];
-  
-  const elders = [];
+
+/**
+ * 生成示例人员列表 mock 数据
+ */
+function generateSamplePersonList(count = 10) {
+  const surnames = ['<surname-1>', '<surname-2>', '<surname-3>', '<surname-4>', '<surname-5>'];
+  const names = ['<name-1>', '<name-2>', '<name-3>', '<name-4>', '<name-5>'];
+
+  const persons = [];
   for (let i = 0; i < count; i++) {
-    const gender = Math.random() > 0.5 ? 1 : 2;
-    const age = 65 + Math.floor(Math.random() * 25);
-    const buildingNum = Math.floor(i / 4) + 1;
-    const roomNum = (i % 4) + 1;
-    const bedNum = Math.floor(Math.random() * 2) + 1;
-    
-    elders.push({
-      Id: `elder_${1000 + i}`,
-      elderId: 1000 + i,
-      elderDepId: 100 + buildingNum,
-      elderDepName: `${buildingNum}号楼`,
-      roomNo: `${buildingNum}0${roomNum}`,
-      headImgUrl: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+    persons.push({
+      id: `person_${1000 + i}`,
+      personId: 1000 + i,
+      depId: 100 + Math.floor(i / 4),
+      depName: `<部门-${Math.floor(i / 4) + 1}>`,
       name: surnames[i % surnames.length] + names[i % names.length],
-      gender: gender,
-      age: age,
-      roomNumber: `${buildingNum}0${roomNum}室`,
-      vipType: Math.floor(Math.random() * 3) + 1,
-      bedNumber: `${buildingNum}0${roomNum}-${bedNum}`,
-      caregiverStatus: 3,
-      careLevel: Math.floor(Math.random() * 5) + 1,
-      abilityLevel: Math.floor(Math.random() * 5) + 1,
-      checkInTime: Date.now() - Math.floor(Math.random() * 730) * 24 * 60 * 60 * 1000,
-      elderlyType: Math.random() > 0.7 ? 1 : 0,
+      gender: Math.random() > 0.5 ? 1 : 2,
+      age: 25 + Math.floor(Math.random() * 40),
+      status: Math.floor(Math.random() * 3) + 1,
+      level: Math.floor(Math.random() * 5) + 1,
+      createTime: Date.now() - Math.floor(Math.random() * 365) * 24 * 60 * 60 * 1000,
     });
   }
-  return elders;
+  return persons;
 }
 
 /**
- * 生成免费服务订单 mock 数据
+ * 生成示例订单 mock 数据
  */
-function generateFreeServiceOrders(count = 8) {
-  const elders = generateElderList(5);
-  const serviceItems = generateFreeServiceItems(3);
+function generateSampleOrders(count = 8) {
+  const persons = generateSamplePersonList(5);
+  const items = generateSampleItems(3);
   const statuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
-  
+
   const orders = [];
   for (let i = 0; i < count; i++) {
-    const elder = elders[i % elders.length];
-    const serviceItem = serviceItems[i % serviceItems.length];
-    
+    const person = persons[i % persons.length];
+    const item = items[i % items.length];
+
     orders.push({
       orderId: 2000 + i,
       serviceType: 'single',
-      elders: [{
-        elderId: elder.Id,
-        name: elder.name,
-        elderDepId: elder.elderDepId,
-        elderDepName: elder.elderDepName,
-        roomNo: elder.roomNo,
-      }],
-      serviceItem: {
-        serviceItemId: serviceItem.id,
-        category: serviceItem.category,
-        name: serviceItem.name,
-        description: serviceItem.description,
-        rat: serviceItem.rate,
+      person: {
+        personId: person.id,
+        name: person.name,
+        depId: person.depId,
+        depName: person.depName,
+      },
+      item: {
+        itemId: item.id,
+        category: item.category,
+        name: item.name,
+        description: item.description,
       },
       eTime: Date.now() + Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000,
       status: statuses[i % statuses.length],
       createTime: Date.now() - i * 24 * 60 * 60 * 1000,
       createUserId: 'user_001',
-      createUserName: '管理员',
+      createUserName: '<管理员>',
       createUserDepId: 'dep_001',
-      createUserDepName: '管理部',
+      createUserDepName: '<管理部>',
     });
   }
   return orders;
@@ -191,200 +183,132 @@ function generateFreeServiceOrders(count = 8) {
 /**
  * 发送 HTTP 请求
  */
-function request(url, options = {}) {
+function sendRequest(path, method, data) {
   return new Promise((resolve, reject) => {
-    const urlObj = new URL(url);
-    const isHttps = urlObj.protocol === 'https:';
+    const url = new URL(CONFIG.baseURL + path);
+    const isHttps = url.protocol === 'https:';
     const lib = isHttps ? https : http;
-    
-    const reqOptions = {
-      hostname: urlObj.hostname,
-      port: urlObj.port || (isHttps ? 443 : 80),
-      path: urlObj.pathname + urlObj.search,
-      method: options.method || 'GET',
+
+    const options = {
+      hostname: url.hostname,
+      port: url.port,
+      path: url.pathname + url.search,
+      method: method,
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json, text/plain, */*',
         'Cookie': CONFIG.cookie,
-        '<project-device-id>'  // 改成项目实际请求头: CONFIG.deviceId,
-        '<project-device-type>': 'WEB',
-        '<project-token-header>': CONFIG.token,
-        '<project-version-header>': '1',
-        'Origin': 'http://localhost:5173',
-        'Referer': 'http://localhost:5173/',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
-        ...options.headers,
+        'Authorization': `Bearer ${CONFIG.token}`,
       },
     };
-    
-    const req = lib.request(reqOptions, (res) => {
-      let data = '';
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
+
+    // 添加项目自定义请求头（按需修改）
+    if (CONFIG.deviceId) {
+      options.headers['X-Device-Id'] = CONFIG.deviceId;
+    }
+
+    const req = lib.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
       res.on('end', () => {
         try {
-          resolve({
-            status: res.statusCode,
-            data: JSON.parse(data),
-          });
-        } catch (e) {
-          resolve({
-            status: res.statusCode,
-            data: data,
-          });
+          resolve({ statusCode: res.statusCode, data: JSON.parse(body) });
+        } catch {
+          resolve({ statusCode: res.statusCode, data: body });
         }
       });
     });
-    
+
     req.on('error', reject);
-    
-    if (options.body) {
-      req.write(JSON.stringify(options.body));
-    }
-    
+    if (data) req.write(JSON.stringify(data));
     req.end();
   });
 }
 
 /**
- * 添加免费示例项
+ * 添加示例项
  */
-async function addFreeServiceItem(item) {
+async function addItem(item) {
   console.log(`\n➕ 添加示例项: ${item.name}`);
-  
   try {
-    const res = await request(`${CONFIG.baseURL}/api/v1/ihs/addFreeServiceItem`, {
-      method: 'POST',
-      body: {
-        category: item.category,
-        name: item.name,
-        description: item.description,
-        rate: item.rate,
-        isActive: item.isActive,
-      },
-    });
-    
-    if (res.status === 200 && res.data.code === 200) {
+    const res = await sendRequest('/api/items', 'POST', item);
+    if (res.statusCode === 200 && res.data?.code === 0) {
       console.log(`✅ 添加成功 - ID: ${res.data.data}`);
-      return { success: true, id: res.data.data };
+      return true;
     } else {
-      console.log(`❌ 添加失败 - ${res.data.msg || '未知错误'}`);
-      return { success: false, error: res.data.msg };
+      console.log(`❌ 添加失败 - ${res.data?.msg || '未知错误'}`);
+      return false;
     }
   } catch (error) {
     console.log(`❌ 请求失败: ${error.message}`);
-    return { success: false, error: error.message };
+    return false;
   }
 }
 
 /**
- * 批量添加免费示例项
+ * 批量添加示例项
  */
-async function batchAddFreeServiceItems(count = 5) {
-  console.log('\n� 批量添加免费示例项');
-  console.log('━'.repeat(50));
-  
-  const items = generateFreeServiceItems(count);
-  const results = [];
-  
+async function batchAddItems(items) {
+  console.log('\n📦 批量添加示例项');
+  let successCount = 0;
   for (const item of items) {
-    const result = await addFreeServiceItem(item);
-    results.push(result);
-    // 延迟一下，避免请求过快
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const ok = await addItem(item);
+    if (ok) successCount++;
+    await new Promise(r => setTimeout(r, 300)); // 延迟避免请求过快
   }
-  
-  const successCount = results.filter(r => r.success).length;
-  console.log(`\n📊 统计: 成功 ${successCount}/${count} 条`);
-  
-  return results;
+  console.log(`\n📊 统计: 成功 ${successCount}/${items.length} 条`);
 }
 
 /**
  * 添加增值示例项
  */
-async function addValueAddServiceItem(item) {
+async function addValueAddItem(item) {
   console.log(`\n➕ 添加增值示例项: ${item.name}`);
-  
   try {
-    const res = await request(`${CONFIG.baseURL}/api/v1/ihs/addValueAddServiceItem`, {
-      method: 'POST',
-      body: {
-        category: item.category,
-        name: item.name,
-        description: item.description,
-        rate: item.rate,
-        billModel: item.billModel,
-        price: item.price,
-        priceUnit: item.priceUnit,
-        isActive: item.isActive,
-      },
-    });
-    
-    if (res.status === 200 && res.data.code === 200) {
+    const res = await sendRequest('/api/value-add-items', 'POST', item);
+    if (res.statusCode === 200 && res.data?.code === 0) {
       console.log(`✅ 添加成功`);
-      return { success: true };
+      return true;
     } else {
-      console.log(`❌ 添加失败 - ${res.data.msg || '未知错误'}`);
-      return { success: false, error: res.data.msg };
+      console.log(`❌ 添加失败 - ${res.data?.msg || '未知错误'}`);
+      return false;
     }
   } catch (error) {
     console.log(`❌ 请求失败: ${error.message}`);
-    return { success: false, error: error.message };
+    return false;
   }
 }
 
 /**
  * 批量添加增值示例项
  */
-async function batchAddValueAddServiceItems(count = 5) {
+async function batchAddValueAddItems(items) {
   console.log('\n💰 批量添加增值示例项');
-  console.log('━'.repeat(50));
-  
-  const items = generateValueAddServiceItems(count);
-  const results = [];
-  
+  let successCount = 0;
   for (const item of items) {
-    const result = await addValueAddServiceItem(item);
-    results.push(result);
-    // 延迟一下，避免请求过快
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const ok = await addValueAddItem(item);
+    if (ok) successCount++;
+    await new Promise(r => setTimeout(r, 300));
   }
-  
-  const successCount = results.filter(r => r.success).length;
-  console.log(`\n📊 统计: 成功 ${successCount}/${count} 条`);
-  
-  return results;
+  console.log(`\n📊 统计: 成功 ${successCount}/${items.length} 条`);
 }
 
 /**
- * 添加免费服务订单
+ * 添加示例订单
  */
-async function addFreeServiceOrder(order) {
-  console.log(`\n➕ 添加服务订单: ${order.serviceItem.name}`);
-  
+async function addOrder(order) {
+  console.log(`\n➕ 添加订单: ${order.item.name}`);
   try {
-    const res = await request(`${CONFIG.baseURL}/api/v1/ihs/addFreeServiceOrder`, {
-      method: 'POST',
-      body: {
-        serviceItemId: order.serviceItem.serviceItemId,
-        elders: order.elders.map(e => e.elderId),
-        eTime: order.eTime,
-        des: `测试订单 - ${order.serviceItem.name}`,
-      },
-    });
-    
-    if (res.status === 200 && res.data.code === 200) {
+    const res = await sendRequest('/api/orders', 'POST', order);
+    if (res.statusCode === 200 && res.data?.code === 0) {
       console.log(`✅ 添加成功`);
-      return { success: true };
+      return true;
     } else {
-      console.log(`❌ 添加失败 - ${res.data.msg || '未知错误'}`);
-      return { success: false, error: res.data.msg };
+      console.log(`❌ 添加失败 - ${res.data?.msg || '未知错误'}`);
+      return false;
     }
   } catch (error) {
     console.log(`❌ 请求失败: ${error.message}`);
-    return { success: false, error: error.message };
+    return false;
   }
 }
 
@@ -395,166 +319,94 @@ async function addFreeServiceOrder(order) {
  */
 function outputMockData() {
   console.log('\n📝 生成 Mock 数据');
-  console.log('━'.repeat(50));
-  
-  const mockData = {
-    freeServiceItems: generateFreeServiceItems(10),
-    elderList: generateElderList(20),
-    freeServiceOrders: generateFreeServiceOrders(15),
-  };
-  
-  console.log('\n免费示例项 Mock 数据 (前3条):');
-  console.log(JSON.stringify(mockData.freeServiceItems.slice(0, 3), null, 2));
-  
-  console.log('\n示例 Mock 数据 (前3条):');
-  console.log(JSON.stringify(mockData.elderList.slice(0, 3), null, 2));
-  
-  console.log('\n免费服务订单 Mock 数据 (前3条):');
-  console.log(JSON.stringify(mockData.freeServiceOrders.slice(0, 3), null, 2));
-  
-  console.log('\n✅ Mock 数据生成完成');
-  console.log(`📊 统计: 示例项 ${mockData.freeServiceItems.length} 条, user ${mockData.elderList.length} 条, 订单 ${mockData.freeServiceOrders.length} 条`);
-  
-  return mockData;
+  const items = generateSampleItems(3);
+  const valueAddItems = generateSampleValueAddItems(3);
+  const orders = generateSampleOrders(3);
+
+  console.log('\n示例项 Mock 数据 (前3条):');
+  console.log(JSON.stringify(items, null, 2));
+
+  console.log('\n增值示例项 Mock 数据 (前3条):');
+  console.log(JSON.stringify(valueAddItems, null, 2));
+
+  console.log('\n示例订单 Mock 数据 (前3条):');
+  console.log(JSON.stringify(orders, null, 2));
+
+  console.log('\n💡 提示: 复制以上数据到你的 mock.ts 中使用');
 }
 
-// ==================== 主函数 ====================
+// ==================== 交互式菜单 ====================
 
-/**
- * 显示菜单
- */
 function showMenu() {
-  console.log('\n📋 请选择操作:');
-  console.log('━'.repeat(50));
-  console.log('1. 批量添加免费示例项 (5条)');
+  console.log('\n' + '='.repeat(50));
+  console.log('🔧 API 测试数据添加工具');
+  console.log('='.repeat(50));
+  console.log('\n请选择操作:');
+  console.log('1. 批量添加示例项 (5条)');
   console.log('2. 批量添加增值示例项 (5条)');
-  console.log('3. 批量添加免费示例项 (自定义数量)');
-  console.log('4. 批量添加增值示例项 (自定义数量)');
-  console.log('5. 查看生成的测试数据示例');
-  console.log('6. 测试接口连接');
+  console.log('3. 批量添加示例订单 (8条)');
+  console.log('4. 仅输出 Mock 数据到控制台');
+  console.log('5. 检查配置');
   console.log('0. 退出');
-  console.log('━'.repeat(50));
-}
 
-/**
- * 测试接口连接
- */
-async function testConnection() {
-  console.log('\n🔍 测试接口连接');
-  console.log('━'.repeat(50));
-  console.log('请求地址:', `${CONFIG.baseURL}/api/v1/ihs/queryFreeItems`);
-  console.log('Token:', CONFIG.token.substring(0, 10) + '...');
-  
-  try {
-    const res = await request(`${CONFIG.baseURL}/api/v1/ihs/queryFreeItems`, {
-      method: 'POST',
-      body: { name: '' },
-    });
-    
-    console.log('状态码:', res.status);
-    console.log('返回数据:', JSON.stringify(res.data, null, 2));
-    
-    if (res.status === 200 && res.data.code === 200) {
-      console.log('✅ 接口连接成功');
-    } else if (res.data.code === 401 || res.data.msg?.includes('凭证')) {
-      console.log('❌ Token 无效或已过期');
-      console.log('💡 请从浏览器重新获取 <project-token-cookie-name>');
-    } else {
-      console.log('❌ 接口返回异常');
-    }
-  } catch (error) {
-    console.log('❌ 连接失败:', error.message);
-    console.log('💡 请确保开发服务器正在运行 (npm run dev)');
-  }
-}
-
-/**
- * 获取用户输入
- */
-function getUserInput(prompt) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
-  
-  return new Promise((resolve) => {
-    rl.question(prompt, (answer) => {
-      rl.close();
-      resolve(answer.trim());
-    });
+
+  rl.question('\n请输入选项: ', async (answer) => {
+    rl.close();
+    const choice = answer.trim();
+
+    // 检查配置（选项 4 除外）
+    if (choice !== '4' && choice !== '0') {
+      if (CONFIG.token === '<your-project-token>') {
+        console.log('\n⚠️  请先配置 token！编辑本文件顶部的 CONFIG 对象。');
+        console.log('   提示: 从浏览器开发者工具 → Application → Cookies 中获取');
+        showMenu();
+        return;
+      }
+    }
+
+    switch (choice) {
+      case '1':
+        await batchAddItems(generateSampleItems(5));
+        break;
+      case '2':
+        await batchAddValueAddItems(generateSampleValueAddItems(5));
+        break;
+      case '3':
+        const orders = generateSampleOrders(8);
+        let okCount = 0;
+        for (const order of orders) {
+          if (await addOrder(order)) okCount++;
+          await new Promise(r => setTimeout(r, 300));
+        }
+        console.log(`\n📊 统计: 成功 ${okCount}/${orders.length} 条`);
+        break;
+      case '4':
+        outputMockData();
+        break;
+      case '5':
+        console.log('\n📋 当前配置:');
+        console.log(`1. baseURL: ${CONFIG.baseURL}`);
+        console.log(`2. token: ${CONFIG.token === '<your-project-token>' ? '⚠️ 未配置' : '✅ 已配置'}`);
+        console.log(`3. deviceId: ${CONFIG.deviceId === '<your-device-id>' ? '⚠️ 未配置' : '✅ 已配置'}`);
+        console.log(`4. cookie: ${CONFIG.cookie === '<your-project-cookie>' ? '⚠️ 未配置' : '✅ 已配置'}`);
+        break;
+      case '0':
+        console.log('👋 退出');
+        process.exit(0);
+      default:
+        console.log('❌ 无效选项');
+    }
+
+    showMenu();
   });
 }
 
-async function main() {
-  console.log('🚀 API 测试数据添加脚本');
-  console.log('━'.repeat(50));
-  
-  // 检查配置
-  if (CONFIG.baseURL === 'https://your-api-domain.com' || CONFIG.token === 'your-token-here') {
-    console.log('⚠️  请先配置 baseURL 和 token');
-    console.log('📝 编辑文件: .claude/skills/master-go-to-code/scripts/seed-test-data.mjs');
-    console.log('\n💡 提示:');
-    console.log('1. baseURL: 通常是 http://localhost:5173/proxy_api/gw/portal');
-    console.log('2. token: 登录后从浏览器开发者工具 -> Application -> Cookies 中获取 <project-token-cookie-name>');
-    console.log('3. 或者从 Network 请求头的 Cookie 中复制完整 cookie');
-    return;
-  }
-  
-  while (true) {
-    showMenu();
-    const choice = await getUserInput('请输入选项 (0-5): ');
-    
-    switch (choice) {
-      case '1':
-        await batchAddFreeServiceItems(5);
-        break;
-        
-      case '2':
-        await batchAddValueAddServiceItems(5);
-        break;
-        
-      case '3': {
-        const count = await getUserInput('请输入要添加的数量: ');
-        const num = parseInt(count);
-        if (num > 0 && num <= 50) {
-          await batchAddFreeServiceItems(num);
-        } else {
-          console.log('❌ 数量必须在 1-50 之间');
-        }
-        break;
-      }
-        
-      case '4': {
-        const count = await getUserInput('请输入要添加的数量: ');
-        const num = parseInt(count);
-        if (num > 0 && num <= 50) {
-          await batchAddValueAddServiceItems(num);
-        } else {
-          console.log('❌ 数量必须在 1-50 之间');
-        }
-        break;
-      }
-        
-      case '5':
-        outputMockData();
-        break;
-        
-      case '6':
-        await testConnection();
-        break;
-        
-      case '0':
-        console.log('\n� 再见！');
-        process.exit(0);
-        
-      default:
-        console.log('❌ 无效选项，请重新选择');
-    }
-    
-    // 等待用户按回车继续
-    await getUserInput('\n按回车键继续...');
-  }
-}
+// ==================== 启动 ====================
 
-// 运行
-main().catch(console.error);
+console.log('🔧 API 测试数据添加工具');
+console.log('⚠️  本文件为通用占位模板，使用前请替换 CONFIG 和业务字段');
+showMenu();
