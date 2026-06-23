@@ -1,8 +1,24 @@
 # Agent Skill Pipeline · 多智能体技能编排框架
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Skills](https://img.shields.io/badge/Skills-7-blue.svg)](#skill-清单)
+[![Framework](https://img.shields.io/badge/Framework-Claude%20Code-green.svg)](https://docs.anthropic.com/claude-code)
+[![Stack](https://img.shields.io/badge/Stack-Vue3%20%7C%20Element%20Plus%20%7C%20Vite-orange.svg)](#两层架构架构通用实现可换)
+
 **一句自然语言指令 → 自动完成「设计稿解析 → 接口代码生成 → 页面组装 → 浏览器验收 → Bug 修复」全流程。**
 
 7 个 AI Skill 协同编排，用 **JSON Schema 硬契约 + Harness Hook 拦截 + Stage Gate 门禁** 替代 prompt 约束——上下文越长 AI 越漂移，靠 prompt 写"别忘 X"扛不住，必须把约束做进 harness 层。
+
+## 为什么需要这个
+
+现有的 AI 编程工具（Cursor / Copilot / Windsurf）擅长写单文件代码，但在"从设计稿到完整模块"这类**多步骤、跨工具、需要严格契约**的任务上会出问题：丢步骤、漏校验、上下文越长漂移越严重。
+
+本项目用 **skill 编排 + 硬契约** 解决：
+
+- **Schema 强制校验**每个阶段的产物——不再靠"AI 别忘了生成 API 文件"
+- **Harness Hook 拦截**非法操作——不是 prompt 里写一句"请遵守"的软约束
+- **Stage Gate 门禁**验证上游产物通过才放下游执行
+- **失败语义分级**——关键阶段（A/B/C）失败熔断，非关键阶段（A.recall/D）警告不打断
 
 > 当前实现基于 Claude Code skill 体系，但**架构层**（schema / hook / 决策树 / stage-gate）与具体 agent 框架无关。换到 LangGraph / AutoGen / QoderWork 等平台只需替换实现层脚本，骨架和契约不动。
 
@@ -54,6 +70,17 @@
               │  validate-stage-products / enforce-baseline-persist│
               └──────────────────────────────────────────────────┘
 ```
+
+## 前置条件
+
+- [Claude Code](https://docs.anthropic.com/claude-code) 已安装并配置
+- Node.js >= 18
+- 业务项目使用 Vue 3 + Element Plus（其他技术栈需自行替换实现层脚本）
+- 配置好对应 MCP 服务（见 [MCP 配置](#mcp-配置)）：
+  - `mastergo-magic-mcp` — 设计稿解析
+  - `yapi-auto-mcp` — 接口生成
+  - `aliyun-yunxiao` — 云效 Bug（可选）
+  - `playwright` — 浏览器自动化
 
 ## Quick Start
 
@@ -177,8 +204,8 @@ _shared/
 ## 文档导航
 
 - [Quick Start](#quick-start) — 5 分钟安装到你的项目
-- [《使用手册》](./使用手册.md) — 7 种触发场景的话术 + 行为契约
-- [《文件树》](./文件树.md) — 每个脚本和 schema 的具体作用
+- [使用手册](./使用手册.md) — 7 种触发场景的话术 + 行为契约
+- [文件树](./文件树.md) — 每个脚本和 schema 的具体作用
 - [docs/STATUS.md](./docs/STATUS.md) — 各 skill 版本和触发关键词速查
 - [docs/WORKFLOW.md](./docs/WORKFLOW.md) — 7 个场景的完整流程详解
 - [docs/GLOSSARY.md](./docs/GLOSSARY.md) — 术语中英对照
