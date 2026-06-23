@@ -7,7 +7,7 @@
 
 **一句自然语言指令 → 自动完成「设计稿解析 → 接口代码生成 → 页面组装 → 浏览器验收 → Bug 修复」全流程。**
 
-7 个 AI Skill 协同编排，用 **JSON Schema 硬契约 + Harness Hook 拦截 + Stage Gate 门禁** 替代 prompt 约束——上下文越长 AI 越漂移，靠 prompt 写"别忘 X"扛不住，必须把约束做进 harness 层。
+7 个 AI Skill 协同编排，用 **JSON Schema 硬契约 + Harness Hook 拦截 + Stage Gate 门禁** 替代 prompt 约束——上下文越长 AI 越漂移，单靠 prompt 约束不可靠，必须把约束做进 harness 层。
 
 ## 为什么需要这个
 
@@ -15,7 +15,7 @@
 
 本项目用 **skill 编排 + 硬契约** 解决：
 
-- **Schema 强制校验**每个阶段的产物——不再靠"AI 别忘了生成 API 文件"
+- **Schema 强制校验**每个阶段的产物——不依赖 AI 自觉遵守流程
 - **Harness Hook 拦截**非法操作——不是 prompt 里写一句"请遵守"的软约束
 - **Stage Gate 门禁**验证上游产物通过才放下游执行
 - **失败语义分级**——关键阶段（A/B/C）失败熔断，非关键阶段（A.recall/D）警告不打断
