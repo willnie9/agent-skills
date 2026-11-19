@@ -1,6 +1,6 @@
 ---
 name: module-flow
-description: 全流程自动化总调度器,5 场景入口(1 完整新模块含接口 / 2 完整新模块无接口/静态 / 3 增量 / 4 迭代 / 5 重构)。**用户贴任何 mastergo.com 链接(不论是否含 yapi)→ 必须先走本 skill 选场景**,由本 skill 编排 master-go-to-code/yapi-to-code/frontend-page-design/playwright-skill。其它触发:贴 PROJECT-TASK 块、说"全流程/新模块/增量/迭代/重构/修 bug",或同时给 mastergo+yapi。默认每阶段检查点,支持 auto 模式一气呵成。
+description: 全流程自动化总调度器,5 场景入口(1 完整新模块含接口 / 2 完整新模块无接口/静态 / 3 增量 / 4 迭代 / 5 重构)。**用户贴任何 mastergo.com 链接(不论是否含 yapi)→ 必须先走本 skill 选场景**,由本 skill 编排 master-go-to-code/yapi-to-code/frontend-page-design/playwright-skill。其它触发:贴 PROJECT-TASK 块、说"全流程/新模块/增量/迭代/重构",或同时给 mastergo+yapi。默认每阶段检查点,支持 auto 模式一气呵成。
 version: 2.2.0
 ---
 

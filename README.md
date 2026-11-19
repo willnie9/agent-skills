@@ -5,9 +5,9 @@
 [![Framework](https://img.shields.io/badge/Framework-Claude%20Code-green.svg)](https://docs.anthropic.com/claude-code)
 [![Stack](https://img.shields.io/badge/Stack-Vue3%20%7C%20Element%20Plus%20%7C%20Vite-orange.svg)](#两层架构架构通用实现可换)
 
-**一句自然语言指令 → 自动完成「设计稿解析 → 接口代码生成 → 页面组装 → 浏览器验收 → Bug 修复」全流程。**
+**面向前端工程化研发的 AI Skill 体系——「模块开发」与「Bug 修复 / 浏览器验证」两条平行主线，按需独立触发或自由组合。**
 
-7 个 AI Skill 协同编排，用 **JSON Schema 硬契约 + Harness Hook 拦截 + Stage Gate 门禁** 替代 prompt 约束——上下文越长 AI 越漂移，单靠 prompt 约束不可靠，必须把约束做进 harness 层。
+用 **JSON Schema 硬契约 + Harness Hook 拦截 + Stage Gate 门禁** 替代纯 prompt 约束——上下文越长 AI 越漂移，单靠 prompt 约束不可靠，必须把约束做进 harness 层。
 
 ## 为什么需要这个
 
@@ -31,44 +31,28 @@
 
 ## 体系全景图
 
+> **核心设计**：**开发流**与**修 Bug 流**是两条完全平行的主线，**浏览器验证**是两者共用的公共平行底座（也可单独直跑）。各模块通过 `project.config.json` 与标准中间契约解耦，输入源（MasterGo / YApi）、前端框架（Vue3）和工单插件（云效）均可按需替换或裁剪。
+
 ```
-                    ┌──────────────────────────────────────┐
-                    │  module-flow ·总调度器                 │
-                    │  解析任务指令 → 编排 A→B→C→A.recall→D  │
-                    └──────────────────────────────────────┘
-                              │       │       │       │
-                Stage A       │   Stage B  Stage C  Stage D
-                              ▼       ▼       ▼       ▼
-              ┌──────────────────┐  ┌─────────────┐  ┌──────────────────────┐  ┌──────────────────┐
-              │ master-go-to-code│  │yapi-to-code │  │frontend-page-design │  │playwright-skill  │
-              │                  │  │             │  │                      │  │                  │
-              │ MasterGo URL     │  │ YApi URL    │  │ dom-tree + define   │  │ MCP 浏览器 smoke  │
-              │  → dom-tree.json │  │  → define.ts│  │  → Vue SFC + 路由   │  │  → 截图 + 报告    │
-              │  → svg-paths     │  │  → api.ts   │  │  → 菜单 + Hooks      │  │                  │
-              │  → 图片资源       │  │             │  │                      │  │                  │
-              └──────────────────┘  └─────────────┘  └──────────────────────┘  └──────────────────┘
-                       │                  │                   │
-                       └──────────────────┴───────────────────┘
-                              ⬇️ stage-report.json + JSON Schema 硬契约校验 ⬇️
+================================================================================
+              两条平行研发主线（互不隶属，各自闭环，按场景独立触发）
+================================================================================
 
-              ┌──────────────────────────────────────────────────┐
-              │  auto-ui-explorer · E2E 测试编排                   │
-              │  全模块扫描 → baseline 持久化 → 增量回归           │
-              └──────────────────────────────────────────────────┘
-
-              ┌──────────────────────────────────────────────────┐
-              │  yunxiao-bug-fix ·业务 SOP                        │
-              │  云效 Bug 全生命周期，可委托上面任一 skill         │
-              └──────────────────────────────────────────────────┘
-
-                              ⬇️ harness 层 hook 强制执行 ⬇️
-
-              ┌──────────────────────────────────────────────────┐
-              │  hooks/ · 6 个 PreToolUse / PostToolUse           │
-              │  auto-mode-guard / validate-yunxiao-comment       │
-              │  enforce-rough-first / enforce-source-read        │
-              │  validate-stage-products / enforce-baseline-persist│
-              └──────────────────────────────────────────────────┘
+  【主线 A：功能/模块开发流】                  【主线 B：缺陷修复流 (独立)】
+   module-flow (专注开发编排)                  yunxiao-bug-fix (可选独立 SOP)
+   解析需求 → 编排 A→B→C→A.recall→D            拉取单据 → 源码定位 → 最小化修复
+     ├─ [输入源·可换] master-go-to-code           └─ 无云效也可纯本地修 Bug + 验证
+     ├─ [输入源·可换] yapi-to-code
+     └─ [框架层·可选] frontend-page-design
+               │                                           │
+               └───────────────────┬───────────────────────┘
+                                   ▼  (两条主线按需调用，也可直接单独运行)
+================================================================================
+              公共平行能力：浏览器验证底座 & Harness 质量门禁
+================================================================================
+  • playwright-skill   ── 通用 MCP 浏览器操作底座（打开 / 点击 / 截图 / 验收）
+  • auto-ui-explorer   ── 按前端框架定制的全模块 E2E 扫描与增量回归
+  • hooks/ + _shared/  ── 6 个 Pre/PostToolUse 硬门禁 + JSON Schema 产物校验
 ```
 
 ## 前置条件
@@ -127,17 +111,17 @@ cp .claude/skills/playwright-skill/config/playwright-skill.config.example.json \
 └── scripts/           ← 自动校验脚本（Step 0 / Stage 切换时跑）
 ```
 
-## Skill 清单
+## Skill 清单（按工程定位分类）
 
-| Skill | 版本 | 角色 |
-|---|---|---|
-| [module-flow](./module-flow/SKILL.md) | v2.2.0 | 总调度器，5 个场景入口（新建 / 增量 / 迭代 / 重构） |
-| [master-go-to-code](./master-go-to-code/SKILL.md) | v2.3.0 | MasterGo DSL → dom-tree + 图片资源 |
-| [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | YApi → TS 类型 + 请求函数 |
-| [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | 组装 Vue SFC + 路由 + 菜单 |
-| [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.1.0 | 全模块 E2E 测试编排 + baseline 持久化 + 增量回归 |
-| [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | MCP 浏览器 smoke 验收 |
-| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | 云效 Bug 全生命周期 SOP |
+| 分类 | Skill | 版本 | 定位与可替换性 |
+|---|---|---|---|
+| **开发流编排** | [module-flow](./module-flow/SKILL.md) | v2.2.0 | 模块开发编排器（新建 / 增量 / 迭代 / 重构），**换框架不用动** |
+| **输入源 (可换)** | [master-go-to-code](./master-go-to-code/SKILL.md) | v2.3.0 | UI 设计源：MasterGo DSL → `dom-tree.json`（可换 Figma 等） |
+| **输入源 (可换)** | [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | API 契约源：YApi → `define.ts` + `api.ts`（可换 Swagger/Apifox） |
+| **框架层 (可选)** | [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | DSL → Vue3 SFC + 路由 + 菜单（随前端技术栈选配） |
+| **公共验证底座** | [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | **通用** MCP 浏览器操作与 smoke 验收底座（开发/修 Bug 共用） |
+| **公共验证底座** | [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.1.0 | 全模块 E2E 扫描 + `baseline.json` 增量回归（组件规则随框架） |
+| **独立流 (可选)** | [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | **独立可选**：云效 Bug 定位、修复、浏览器验证与回帖闭环 |
 
 ## Harness Hook（已落盘到 `hooks/`）
 
