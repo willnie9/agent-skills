@@ -1,0 +1,4 @@
+interface:
+  display_name: "MasterGo 子 DSL 交付包"
+  short_description: "从外层 DSL 提取子 DSL、交互与可选细查层"
+  default_prompt: "使用 $mastergo-subdsl-package，把 MasterGo 外层链接和图片目录整理成可喂给 AI 的子 DSL、图片和交互文档。局部视觉核对时可选 auditDepth=3（默认保持两级）。"

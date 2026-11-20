@@ -4,7 +4,6 @@
   "title": "PROJECT-TASK 任务指令",
   "description": "module-flow Step 1 解析后的结构化任务指令。字段格式详见 references/task-template.md。",
   "type": "object",
-  "required": ["pagePath", "module"],
   "additionalProperties": false,
   "properties": {
     "pagePath": {
@@ -20,13 +19,23 @@
     "uiLink": {
       "type": "string",
       "format": "uri",
-      "pattern": "^https://mastergo\\.com/file/[0-9]+\\?layer_id=[0-9]+:[0-9a-f]+$",
-      "description": "MasterGo URL,Stage A 必填"
+      "pattern": "^https://mastergo\\.com/(file|goto)/",
+      "description": "MasterGo 外层或场景链接；出包时按 skill 规则核对 file/page/layer 来源标识"
     },
     "apiLink": {
       "oneOf": [
-        { "type": "string", "format": "uri" },
-        { "type": "array", "items": { "type": "string", "format": "uri" }, "minItems": 1 }
+        {
+          "type": "string",
+          "format": "uri"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "minItems": 1
+        }
       ],
       "description": "YApi URL(单个或数组),Stage B 必填"
     },
@@ -40,7 +49,10 @@
     },
     "styleScope": {
       "type": "string",
-      "enum": ["content-only", "full-page"],
+      "enum": [
+        "content-only",
+        "full-page"
+      ],
       "default": "content-only",
       "description": "或 'custom: 描述'"
     },
@@ -51,12 +63,22 @@
     },
     "dataStrategy": {
       "type": "string",
-      "enum": ["auto", "mock", "api"],
+      "enum": [
+        "auto",
+        "mock",
+        "api"
+      ],
       "default": "auto"
     },
-    "vueRequirements": { "type": "string" },
-    "targetPath": { "type": "string" },
-    "imgDir": { "type": "string" },
+    "vueRequirements": {
+      "type": "string"
+    },
+    "targetPath": {
+      "type": "string"
+    },
+    "imgDir": {
+      "type": "string"
+    },
     "stages": {
       "type": "string",
       "pattern": "^[ABCD](,[ABCD])*$",
@@ -68,6 +90,86 @@
       "pattern": "^[a-z0-9-]+$",
       "description": "Stage D 的 flow 名,留空自动用 <module>-smoke"
     },
-    "notes": { "type": "string" }
-  }
+    "notes": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "design-package",
+        "backend-plan",
+        "design-and-backend-plan",
+        "develop"
+      ],
+      "default": "develop",
+      "description": "目标分流；文档目标不要求 module/pagePath，不进入 A/B/C/D"
+    },
+    "designPackageDir": {
+      "type": "string",
+      "description": "已有设计包路径或本次设计包输出目录"
+    },
+    "packageImageDir": {
+      "type": "string",
+      "description": "用户提供的截图/切图来源目录，区别于开发资源输出 imgDir"
+    },
+    "auditDepth": {
+      "type": "integer",
+      "minimum": 2,
+      "default": 2,
+      "description": "设计包细查深度，3 及以上额外导出 audit/"
+    },
+    "backendPlanFile": {
+      "type": "string",
+      "description": "已有后端方案路径或本次输出文件"
+    },
+    "prepareDesignPackage": {
+      "type": "boolean",
+      "description": "开发前按需生成设计交付包"
+    },
+    "analyzeBackendGaps": {
+      "type": "boolean",
+      "description": "开发前按需分析后端缺口"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "goal": {
+          "enum": [
+            "design-package",
+            "backend-plan",
+            "design-and-backend-plan"
+          ]
+        }
+      },
+      "required": [
+        "goal"
+      ]
+    },
+    {
+      "properties": {
+        "goal": {
+          "enum": [
+            "develop"
+          ]
+        }
+      },
+      "required": [
+        "goal",
+        "pagePath",
+        "module"
+      ]
+    },
+    {
+      "required": [
+        "pagePath",
+        "module"
+      ],
+      "not": {
+        "required": [
+          "goal"
+        ]
+      }
+    }
+  ]
 }

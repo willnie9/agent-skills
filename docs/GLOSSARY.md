@@ -9,18 +9,20 @@
 | `.claude/skills/` | Claude 技能目录 | 所有 skill 的根目录,Claude 启动时自动加载 |
 | `README.md` | 体系说明 | 给开发者看的「这套 skill 是什么、怎么用」 |
 | `STATUS.md` | 状态总览 | 版本矩阵 / 工具脚本清单 / 改进历史 |
-| `WORKFLOW.md` | 流程指南 | 7 个场景的详尽步骤(用 jdz 项目作演示) |
+| `WORKFLOW.md` | 流程指南 | 文档目标分流与 7 个开发/验证场景的步骤 |
 | `GLOSSARY.md` | 术语表(本文件) | 中英文含义对照 |
 | `DESIGN-DECISIONS.md` | 设计决策 | 架构设计思路与 trade-off 分析 |
 | `project.config.json` | 项目级共享配置 | 各 skill 读这份了解项目结构(viewsDir/cacheDir/HTTP 客户端等) |
 | `schemas/project-config.schema.json` | 项目配置 schema | 约束 project.config.json 的字段格式 |
 
-## skill 名(7 个)
+## skill 名(9 个)
 
 | 英文名 | 拆解 | 中文含义 | 触发关键词 |
 |---|---|---|---|
-| `module-flow` | module(模块) + flow(流程) | **模块全流程编排器** | PROJECT-TASK / "全流程自动化" / mastergo+yapi |
-| `master-go-to-code` | MasterGo(设计稿工具) → code | **MasterGo 设计稿转代码** | mastergo URL / "设计稿" / "还原 UI" |
+| `module-flow` | module(模块) + flow(流程) | **目标分流与模块编排器** | PROJECT-TASK / 多阶段串联 / 完整开发 |
+| `mastergo-subdsl-package` | MasterGo + sub DSL + package | **设计交付包** | "整理设计稿" / "子 DSL" / "递归细查" |
+| `backend-gap-mock-plan` | backend + gap + mock + plan | **后端缺口与 Mock 接入方案** | "后端缺什么" / "接口方案" |
+| `master-go-to-code` | MasterGo(设计稿工具) → code | **MasterGo 设计稿转代码** | "设计稿转代码" / "还原 UI" |
 | `yapi-to-code` | YApi(接口管理工具) → code | **YApi 接口转代码** | YApi URL / "接口对接" |
 | `frontend-page-design` | frontend + page + design | **前端页面组装器** | "新增模块" / "组装页面" |
 | `auto-ui-explorer` | auto(自动) + UI + explorer(探索者) | **全模块 E2E 测试编排** | "跑一遍测试" / "全量回归" / "E2E" |
@@ -52,6 +54,7 @@
 | 英文名 | 中文含义 |
 |---|---|
 | `SKILL.md` | 总调度入口(5 个场景决策树 + auto 模式) |
+| `references/intent-routing.md` | 文档/开发目标分流与可选前置步骤 |
 | `references/task-template.md` | 任务指令格式(PROJECT-TASK 块) |
 | `references/stage-contracts.md` | 各 Stage 输入/输出契约 |
 | `references/data-strategy-options.md` | 数据策略 4 选项(A 全 mock / D 静态等) |

@@ -24,6 +24,8 @@ mkdir -p .claude/hooks .claude/skills .claude/state .claude/results
 
 # 4. 复制 skills（全部或按需选择）
 cp -r /tmp/agent-skills/module-flow           .claude/skills/
+cp -r /tmp/agent-skills/mastergo-subdsl-package .claude/skills/
+cp -r /tmp/agent-skills/backend-gap-mock-plan .claude/skills/
 cp -r /tmp/agent-skills/master-go-to-code     .claude/skills/
 cp -r /tmp/agent-skills/yapi-to-code          .claude/skills/
 cp -r /tmp/agent-skills/frontend-page-design  .claude/skills/
@@ -102,7 +104,8 @@ node -e "import('.claude/skills/master-go-to-code/node_modules/sharp/lib/index.j
 
 ## 修改已有 Skill
 
-- 修改逻辑后同步更新 `version`（遵循 semver：修 bug 升 patch，新功能升 minor）
+- 现有 skill 保留顶层 `version`；新增 Codex 兼容 skill 可用 `metadata.version`，例如 `metadata: { version: 1.0.0 }`。
+- 修改逻辑后同步更新对应版本字段（遵循 semver：修 bug 升 patch，新功能升 minor）
 - 在 `## Changelog` 补一条记录
 - 如果改了上下游契约（输入/输出 schema），同步更新 `docs/STATUS.md` 的改进历史
 

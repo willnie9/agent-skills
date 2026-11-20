@@ -1,6 +1,30 @@
 # 任务指令格式（PROJECT-TASK）
 
-> 本文件被 [SKILL.md](./SKILL.md) Step 1 引用。定义 `---PROJECT-TASK---` 任务指令块的完整字段、格式约定、解析规则。
+> 本文件被 [SKILL.md](../SKILL.md) Step 1 引用。定义 `---PROJECT-TASK---` 任务指令块的完整字段、格式约定、解析规则。
+
+## 目标与可选前置字段
+
+先按 [目标分流规则](intent-routing.md) 判定范围。文档目标 `design-package`、`backend-plan`、`design-and-backend-plan` 不要求 `module` / `pagePath`，也不执行开发阶段。以下原有字段的必填条件仅适用于 `goal=develop`（默认）。
+
+| 字段 | 默认值 | 说明 |
+|---|---|---|
+| `goal` | `develop` | `design-package` / `backend-plan` / `design-and-backend-plan` / `develop` |
+| `designPackageDir` | 按需推导 | 已有设计包或输出目录 |
+| `packageImageDir` | 无 | 用户提供的截图/切图目录；缺图依设计 skill 规则显式声明 |
+| `auditDepth` | `2` | 3 及以上额外导出深层审计节点 |
+| `backendPlanFile` | `<设计包>/backend-interface-plan.md` | 已有方案或输出文件 |
+| `prepareDesignPackage` | 按目标决定 | 开发前是否先出包 |
+| `analyzeBackendGaps` | 按需求决定 | 开发前是否先分析后端缺口 |
+
+仅出包示例（不创建页面）：
+
+```yaml
+goal: design-package
+uiLink: https://mastergo.com/file/123?page_id=1:abc&layer_id=2:def
+packageImageDir: ./screenshots
+designPackageDir: ./design-package
+auditDepth: 3
+```
 
 ## 标准格式
 
@@ -34,7 +58,7 @@ notes: （选填，备注）
 | 字段 | 类型 | 说明 |
 |---|---|---|
 | `pagePath` | 字符串 | 菜单层级路径，用 ` / ` 分隔（首尾空格可有可无）|
-| `module` | kebab-case 字符串 | 模块名,决定项目视图目录和接口目录下的子目录名 |
+| `module` | camelCase 字符串 | 模块名,决定项目视图目录和接口目录下的子目录名 |
 
 ### URL 字段
 

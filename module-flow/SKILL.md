@@ -1,14 +1,30 @@
 ---
 name: module-flow
-description: 全流程自动化总调度器,5 场景入口(1 完整新模块含接口 / 2 完整新模块无接口/静态 / 3 增量 / 4 迭代 / 5 重构)。**用户贴任何 mastergo.com 链接(不论是否含 yapi)→ 必须先走本 skill 选场景**,由本 skill 编排 master-go-to-code/yapi-to-code/frontend-page-design/playwright-skill。其它触发:贴 PROJECT-TASK 块、说"全流程/新模块/增量/迭代/重构",或同时给 mastergo+yapi。默认每阶段检查点,支持 auto 模式一气呵成。
-version: 2.2.0
+description: 按任务目标编排设计出包、后端缺口分析与模块开发。用户要求多个阶段串联、完整开发、新模块、增量、迭代、重构或提供 PROJECT-TASK 时使用。明确只要设计交付包或后端方案时直接调用对应独立 skill；MasterGo 链接本身不代表授权开发。支持 auto 模式。
+version: 2.3.0
 ---
 
 # Module-Flow · 全流程编排器
 
 > 本 skill 调度所有下游 skill。所有项目结构信息从 `.claude/skills/project.config.json` 读取,`<config.xxx>` 占位指向该配置。
 
-## 入口决策(5 个场景)
+## 目标分流（优先于开发场景、自检和 Auto Mode）
+
+明确点名 skill 或明确限定产物时，按该范围直接执行；`auto` 只改变交互节奏，不扩展范围。只给链接、目标不明时询问目标，不默认创建模块。
+
+| 用户目标 | 调用方式 | 完成边界 |
+|---|---|---|
+| 整理设计稿 / 子 DSL / 设计文档 / 递归细查 | `mastergo-subdsl-package` 独立执行 | 设计包交付即结束 |
+| 后端缺口 / 接口方案 / Mock 接入规划 | `backend-gap-mock-plan` 独立执行 | 方案交付即结束，可直接读需求和代码 |
+| 整理设计并出后端方案 | `mastergo-subdsl-package` → `backend-gap-mock-plan` | 两份文档交付即结束 |
+| 完整开发 / 新模块 / 增量 / 迭代 / 重构 | 按需准备设计包、分析后端，再进入下方开发场景 | 在用户指定的开发和验证范围内完成 |
+| 仅 YApi 对接 / 浏览器操作 / E2E / 修 Bug | 对应独立 skill | 不强制进入模块开发 |
+
+串联规则、输入字段、已有产物复用和 Stage A 衔接见 [references/intent-routing.md](references/intent-routing.md)。设计包不是 `dom-tree.json`，两个新增 skill 是可选前置能力，不新增 A/B/C/D gate。
+
+## 开发入口决策(5 个场景)
+
+以下仅在目标是开发时使用；设计出包和后端方案任务不进入本节。
 
 ```
 用户输入
@@ -45,6 +61,13 @@ version: 2.2.0
 - pagePath / module / imgDir → 拉 DSL 根节点 + grep menu 自动推断,auto 模式不问
 - 数据策略(场景 2) → auto 默认 A;非 auto 问用户
 - 场景 3/4/5 → 用户**必须显式说**"xxx 模块 [增量/迭代/重构]",不准 Claude 推断
+
+文档目标直接跳过现有 Step 1–3 和开发场景问题：
+
+- `design-package`：委托 `mastergo-subdsl-package`，核对交付物后结束。
+- `backend-plan`：委托 `backend-gap-mock-plan`，核对方案后结束。
+- `design-and-backend-plan`：按序委托两者，核对方案后结束。
+- 只有 `develop` 才继续原有场景、模块字段、开发计划与阶段门禁。
 
 ## Auto Mode(无确认模式)
 
@@ -121,6 +144,8 @@ mode: auto
 
 ### Step 0 · Reconnaissance(自检)
 
+先完成目标分流。独立出包只检查 MasterGo MCP 和实际输入；独立后端分析只检查需求与项目代码。不要为文档任务要求 YApi、浏览器、开发服务器或完整开发配置。开发任务只检查计划中需要的 skill / MCP。
+
 ```bash
 # 1. 项目配置就位
 test -f .claude/skills/project.config.json
@@ -132,7 +157,10 @@ test -f .claude/skills/playwright-skill/SKILL.md
 # 3. 按 stages 验证对应 MCP 可用
 #    stages 含 A → mastergo MCP
 #    stages 含 B → yapi MCP
-# 4. Git 状态干净(强烈建议先开新分支)
+# 4. 选择对应前置步骤时，再检查出包 / 后端分析 skill
+#    prepareDesignPackage=true → mastergo-subdsl-package/SKILL.md
+#    analyzeBackendGaps=true → backend-gap-mock-plan/SKILL.md
+# 5. Git 状态干净(强烈建议先开新分支)
 git status --short
 ```
 
@@ -140,7 +168,7 @@ git status --short
 
 #### 1.1 第一问:选场景
 
-用户贴 mastergo URL 之后,**第一句话**必须按以下模板问:
+已确认要开发、但场景尚不明确时，按以下模板补场景；仅出包、仅方案、目标已明确或输入完整时跳过：
 
 ```
 🎨 收到 https://mastergo.com/file/xxx?layer_id=yyy
@@ -154,7 +182,7 @@ git status --short
   5) ♻️ 重构(重写现有模块)         — 接下来要给"模块名" + YApi
 ```
 
-不要问别的,等用户回数字。
+只补缺失的信息，用户已明确的场景不重复询问。
 
 #### 1.2 第二问:根据场景补必要信息
 
@@ -268,6 +296,8 @@ Stage D — playwright-skill(MCP 浏览器 smoke 验证,前置自检 token-diff-
 ```
 
 ### Step 4 · 依次执行 Stage(用 stage-gate.mjs 把关每个切换点)
+
+对于 `develop`，只有按目标分流选择了可选前置步骤时，才在 Stage A 前执行它们（不计入 A/B/C/D）。设计包路径、选定场景链接、交互原文和后端方案再传给下游；Stage A 仍必须产出并校验 `dom-tree.json` / `svg-paths.json`，再执行原有 gate。文档目标已在开发场景之前交付并结束。
 
 各 Stage 的输入/产出契约见 [references/stage-contracts.md](./references/stage-contracts.md)。
 统一报告格式见 [_shared/schemas/stage-report.schema.json](../_shared/schemas/stage-report.schema.json)。
@@ -398,6 +428,11 @@ git commit -m "feat(<module>): ..."
 ```
 
 ## Changelog
+
+### v2.3.0 (2026-11-20)
+- 新增独立设计出包、后端方案和二者串联的目标分流，不再因 MasterGo 链接强制进入开发。
+- 按需委托 `mastergo-subdsl-package` / `backend-gap-mock-plan`，支持现有设计包和方案复用。
+- 明确设计交付包与 Stage A 代码生成产物的边界，保留原有阶段门禁。
 
 ### v2.2.0 (2026-05-15)
 - 新增 **Auto Mode**:关键词 `auto / yolo / 全跑 / 别问` 触发无确认模式

@@ -1,19 +1,21 @@
 # Skill 体系状态总览
 
-> 一页快速了解 7 个 skill 的版本/依赖/触发方式/最近变更。详细文档见各自 `SKILL.md`。
+> 一页快速了解 9 个 skill 的版本/依赖/触发方式/最近变更。详细文档见各自 `SKILL.md`。
 
-**最后更新**:2026-06-03(v1.1.0 真 hook 落盘 + 区分硬/软约束)
-**当前活跃流水线**:module-flow → A → B → C → A.recall(DSL diff) → D,每个 Stage 切换有 stage-gate.mjs 把关
+**最后更新**:2026-11-20（新增设计交付包 / 后端方案及目标分流）
+**当前活跃流水线**:先按目标分流；文档能力独立运行或串联，开发时可选出包 / 后端分析 → A → B → C → A.recall → D，保留原有 stage-gate。
 **支持 5 个场景**:1 完整新模块(含接口) / 2 完整新模块(无接口) / 3 增量 / 4 迭代 / 5 重构 (3/4/5 跑 e2e 定位现有模块)
 
 ---
 
 ## Auto Mode 支持矩阵
 
-所有 skill 统一支持 auto 关键词(`auto / yolo / 全跑 / 一气呵成 / 别问 / 自动`):
+开发与验证 skill 支持 auto 关键词(`auto / yolo / 全跑 / 一气呵成 / 别问 / 自动`):
 
 | Skill | auto 行为 | 必停点 |
 |---|---|---|
+| `mastergo-subdsl-package` | 依出包规则处理输入，auto 不扩展到开发 | MCP / 外层链接缺失；缺截图需显式处理 |
+| `backend-gap-mock-plan` | 按用户范围交付方案，已授权实现才继续 | 缺需求或项目代码；不确定事实标待确认 |
 | `module-flow` | 跳所有 Step 2-4 确认,3 个 stage-gate 自动跑;场景 3/4/5 跑 Step 1.5 e2e 定位 | MCP / Git / YApi 完全没给(场景 1) / 精修错 / e2e 定位失败(场景 3/4/5) |
 | `master-go-to-code` | 跳"等用户继续"检查点,compare-tokens fail 不阻断 | validate-dom-tree fail |
 | `yapi-to-code` | 跳类型映射预览,validate-define warn 不阻断 | 文件冲突仍三选 |
@@ -26,7 +28,7 @@
 
 ## 统一 Stage Report 格式
 
-所有 skill 跑完落盘 stage-report.json,符合 `_shared/schemas/stage-report.schema.json`:
+开发流水线各 Stage 跑完落盘 stage-report.json,符合 `_shared/schemas/stage-report.schema.json`:
 
 ```json
 {
@@ -41,7 +43,9 @@
 }
 ```
 
-**所有报告统一落盘到 `.claude/results/<module>/<stage>.json`**(不污染源码目录)。module-flow 的 stage-gate 通过 verdict 决定继续/阻断。
+设计出包和后端方案是可选前置文档，不生成 A/B/C/D Stage Report。
+
+**开发阶段报告统一落盘到 `.claude/results/<module>/<stage>.json`**(不污染源码目录)。module-flow 的 stage-gate 通过 verdict 决定继续/阻断。
 
 | Stage | 报告位置 | 产 by |
 |---|---|---|
@@ -58,13 +62,15 @@
 
 | Skill | 版本 | 角色 | references | schemas | scripts |
 |-------|------|------|--|---|---|
-| [module-flow](./module-flow/SKILL.md) | v2.2.0 | 总调度·编排器 | 6 | 1 | 2 ✅ |
-| [master-go-to-code](./master-go-to-code/SKILL.md) | v2.3.0 | 视觉还原引擎 | 5 | 2 | 7 ✅ + Python 1 |
-| [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | 接口生成引擎 | 6 | — | 1 ✅ |
-| [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | 页面组装引擎 | 7 | — | 2 ✅ |
-| [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.1.0 | E2E 测试编排引擎 | 5 | 3 | 4 ✅ |
-| [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | MCP 浏览器适配层 | — | 1 (config-schema) | 仅 config + SKILL.md |
-| [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | 云效 Bug SOP | — | — | config/yunxiao-comment.md |
+| [module-flow](../module-flow/SKILL.md) | v2.3.0 | 目标分流·编排器 | 7 | 1 | 1 ✅ |
+| [mastergo-subdsl-package](../mastergo-subdsl-package/SKILL.md) | v1.0.0 | 独立设计出包·可选前置 | 1 | — | 1 ✅ |
+| [backend-gap-mock-plan](../backend-gap-mock-plan/SKILL.md) | v1.0.0 | 独立后端缺口分析·可选前置 | 1 | — | — |
+| [master-go-to-code](../master-go-to-code/SKILL.md) | v2.3.1 | 视觉还原引擎 | 5 | 2 | 7 ✅ + Python 1 |
+| [yapi-to-code](../yapi-to-code/SKILL.md) | v2.2.0 | 接口生成引擎 | 6 | — | 1 ✅ |
+| [frontend-page-design](../frontend-page-design/SKILL.md) | v2.2.0 | 页面组装引擎 | 7 | — | 2 ✅ |
+| [auto-ui-explorer](../auto-ui-explorer/SKILL.md) | v7.1.0 | E2E 测试编排引擎 | 5 | 3 | 4 ✅ |
+| [playwright-skill](../playwright-skill/SKILL.md) | v8.0.0 | MCP 浏览器适配层 | — | 1 (config-schema) | 仅 config + SKILL.md |
+| [yunxiao-bug-fix](../yunxiao-bug-fix/SKILL.md) | v3.2.0 | 云效 Bug SOP | — | — | config/yunxiao-comment.md |
 | **_shared** | — | 跨 skill 共享层 | — | 3 | 5 ✅ |
 | **顶层** | — | 项目配置 + 总流程 | — | 1 (project-config) | — |
 
@@ -101,14 +107,16 @@
 
 ## 依赖关系图
 
+`mastergo-subdsl-package` 和 `backend-gap-mock-plan` 可独立运行；用户要求串联时由 `module-flow` 安排“设计出包 → 后端分析”。开发目标才继续下图阶段，详见 [目标分流](../module-flow/references/intent-routing.md)。
+
 ```
-                       module-flow (v2.2.0)
+                       module-flow (v2.3.0)
                             │
         ┌───────────────────┼───────────────────┐
         │                   │                   │
         ▼                   ▼                   ▼
 master-go-to-code      yapi-to-code      frontend-page-design
-   (v2.3.0)             (v2.2.0)            (v2.2.0)
+   (v2.3.1)             (v2.2.0)            (v2.2.0)
         │                   │                   │
         │  通过 JSON Schema  │                   │
         │  硬契约校验产物    │                   │
@@ -159,10 +167,19 @@ yunxiao-bug-fix (v3.2.0) ───┐
 │
 ├── module-flow/
 │   ├── SKILL.md
-│   ├── references/(6 个)
+│   ├── references/(7 个，含 intent-routing.md)
 │   ├── schemas/task-input.schema.json
 │   └── scripts/
 │       └── check-resume-state.mjs
+│
+├── mastergo-subdsl-package/
+│   ├── SKILL.md + agents/openai.yaml
+│   ├── references/output-schema.md
+│   └── scripts/package-subdsl.mjs
+│
+├── backend-gap-mock-plan/
+│   ├── SKILL.md
+│   └── references/plan-template.md
 │
 ├── master-go-to-code/
 │   ├── SKILL.md
@@ -197,8 +214,10 @@ yunxiao-bug-fix (v3.2.0) ───┐
 
 | Skill | 自动触发关键词 | 手动调用 |
 |-------|--------------|---------|
-| module-flow | `---PROJECT-TASK---` / "全流程自动化" / "一条龙生成新模块" / 同时给 mastergo + yapi URL / 含 "xxx 增量/迭代/重构" + mastergo URL | `/module-flow` |
-| master-go-to-code | `mastergo.com/file/...` / "设计稿" / "MasterGo" / "还原 UI" | `/master-go-to-code` |
+| mastergo-subdsl-package | "整理设计稿" / "设计交付包" / "子 DSL" / "递归细查" | `/mastergo-subdsl-package` |
+| backend-gap-mock-plan | "后端缺什么" / "接口方案" / "Mock 接入规划" | `/backend-gap-mock-plan` |
+| module-flow | PROJECT-TASK / 多阶段串联 / 完整开发 / 新模块 / 增量 / 迭代 / 重构 | `/module-flow` |
+| master-go-to-code | "设计稿转代码" / "还原 UI"（仅出设计包时不触发） | `/master-go-to-code` |
 | yapi-to-code | YApi 链接 / "接口对接" / "生成 API 代码" / "YApi" | `/yapi-to-code` |
 | frontend-page-design | "新增模块" / "组装页面" / "页面整合" | `/frontend-page-design` |
 | playwright-skill | "看看 xxx 页面" / "打开 xxx 看看" / "截个图" / "验证 UI" | `/playwright-skill` |
@@ -208,6 +227,12 @@ yunxiao-bug-fix (v3.2.0) ───┐
 ---
 
 ## 关键改进
+
+### 2026-11-20 · 独立前置能力与目标分流
+
+- 新增 `mastergo-subdsl-package` v1.0.0（保留可配置深度审计）、`backend-gap-mock-plan` v1.0.0。
+- `module-flow` v2.3.0 根据目标决定只出包、只分析、文档串联或继续开发；MasterGo 链接不再强制开发。
+- `master-go-to-code` v2.3.1 收窄触发，保留原 Stage A 转换和门禁；已有文档可核对后复用。
 
 ### v2.3.0(2026-05-21)playwright-skill MCP-first 瘦身
 
@@ -220,7 +245,7 @@ yunxiao-bug-fix (v3.2.0) ───┐
 
 ### v2.2.0(2026-05-15)全 auto 化 + 统一 stage-report
 
-1. **7 个 skill 统一支持 auto 关键词**(yolo / 全跑 / 一气呵成 / 别问):全部 frontmatter 升 2.2.0 / 3.2.0 / 6.0.0
+1. **当时 7 个开发 skill 统一支持 auto 关键词**(yolo / 全跑 / 一气呵成 / 别问):对应 frontmatter 版本为 2.2.0 / 3.2.0 / 6.0.0
 2. **统一 stage-report.schema.json**:所有 skill 产报告统一 verdict (`pass/warn/fail`) 格式
 3. **报告路径统一到 `.claude/results/<module>/`**:不再污染源码目录(`src/cache/...` / `src/views/...`)
 4. **抽 `_shared/lib/stage-gate.mjs`**:通用 gate 检查器,module-flow 在 Stage 切换点用它把关

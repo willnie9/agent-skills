@@ -1,7 +1,7 @@
 # Agent Skill Pipeline · 多智能体技能编排框架
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-7-blue.svg)](#skill-清单)
+[![Skills](https://img.shields.io/badge/Skills-9-blue.svg)](#skill-清单)
 [![Framework](https://img.shields.io/badge/Framework-Claude%20Code-green.svg)](https://docs.anthropic.com/claude-code)
 [![Stack](https://img.shields.io/badge/Stack-Vue3%20%7C%20Element%20Plus%20%7C%20Vite-orange.svg)](#两层架构架构通用实现可换)
 
@@ -39,14 +39,16 @@
 ================================================================================
 
   【主线 A：功能/模块开发流】                  【主线 B：缺陷修复流 (独立)】
-   module-flow (专注开发编排)                  yunxiao-bug-fix (可选独立 SOP)
-   解析需求 → 编排 A→B→C→A.recall→D            拉取单据 → 源码定位 → 最小化修复
-     ├─ [输入源·可换] master-go-to-code           └─ 无云效也可纯本地修 Bug + 验证
+   module-flow (按目标调度开发)                yunxiao-bug-fix (可选独立 SOP)
+   A→B→C→A.recall→D                           拉取单据 → 源码定位 → 最小化修复
+     ├─ [输入源·可换] master-go-to-code
      ├─ [输入源·可换] yapi-to-code
      └─ [框架层·可选] frontend-page-design
-               │                                           │
-               └───────────────────┬───────────────────────┘
-                                   ▼  (两条主线按需调用，也可直接单独运行)
+
+  【可选前置能力（可独立运行或按需串联）】
+   mastergo-subdsl-package → backend-gap-mock-plan → module-flow
+   设计交付包                 后端方案               完整开发
+   只要文档时在对应步骤结束，不继续向下运行
 ================================================================================
               公共平行能力：浏览器验证底座 & Harness 质量门禁
 ================================================================================
@@ -77,7 +79,7 @@ cd your-project
 mkdir -p .claude/hooks .claude/skills .claude/state .claude/results
 
 # 3. 复制所有技能（或按需选择）
-cp -r /tmp/agent-skills/{module-flow,master-go-to-code,yapi-to-code,frontend-page-design,playwright-skill,auto-ui-explorer,yunxiao-bug-fix,_shared} .claude/skills/
+cp -r /tmp/agent-skills/{module-flow,mastergo-subdsl-package,backend-gap-mock-plan,master-go-to-code,yapi-to-code,frontend-page-design,playwright-skill,auto-ui-explorer,yunxiao-bug-fix,_shared} .claude/skills/
 cp /tmp/agent-skills/project.config.json .claude/skills/
 cp -r /tmp/agent-skills/schemas .claude/skills/
 cp /tmp/agent-skills/hooks/*.mjs .claude/hooks/
@@ -115,13 +117,29 @@ cp .claude/skills/playwright-skill/config/playwright-skill.config.example.json \
 
 | 分类 | Skill | 版本 | 定位与可替换性 |
 |---|---|---|---|
-| **开发流编排** | [module-flow](./module-flow/SKILL.md) | v2.2.0 | 模块开发编排器（新建 / 增量 / 迭代 / 重构），**换框架不用动** |
-| **输入源 (可换)** | [master-go-to-code](./master-go-to-code/SKILL.md) | v2.3.0 | UI 设计源：MasterGo DSL → `dom-tree.json`（可换 Figma 等） |
+| **开发流编排** | [module-flow](./module-flow/SKILL.md) | v2.3.0 | 目标分流与模块开发编排器（新建 / 增量 / 迭代 / 重构），**换框架不用动** |
+| **独立前置能力** | [mastergo-subdsl-package](./mastergo-subdsl-package/SKILL.md) | v1.0.0 | 外层容器 → 子 DSL、截图映射、设计文档，可选深层审计 |
+| **独立前置能力** | [backend-gap-mock-plan](./backend-gap-mock-plan/SKILL.md) | v1.0.0 | 需求/设计包 + 现有代码 → 后端缺口方案与 Mock 接入约定 |
+| **输入源 (可换)** | [master-go-to-code](./master-go-to-code/SKILL.md) | v2.3.1 | UI 设计源：MasterGo DSL → `dom-tree.json`（可换 Figma 等） |
 | **输入源 (可换)** | [yapi-to-code](./yapi-to-code/SKILL.md) | v2.2.0 | API 契约源：YApi → `define.ts` + `api.ts`（可换 Swagger/Apifox） |
 | **框架层 (可选)** | [frontend-page-design](./frontend-page-design/SKILL.md) | v2.2.0 | DSL → Vue3 SFC + 路由 + 菜单（随前端技术栈选配） |
 | **公共验证底座** | [playwright-skill](./playwright-skill/SKILL.md) | v8.0.0 | **通用** MCP 浏览器操作与 smoke 验收底座（开发/修 Bug 共用） |
 | **公共验证底座** | [auto-ui-explorer](./auto-ui-explorer/SKILL.md) | v7.1.0 | 全模块 E2E 扫描 + `baseline.json` 增量回归（组件规则随框架） |
 | **独立流 (可选)** | [yunxiao-bug-fix](./yunxiao-bug-fix/SKILL.md) | v3.2.0 | **独立可选**：云效 Bug 定位、修复、浏览器验证与回帖闭环 |
+
+## 按目标独立使用或串联
+
+两个前置 skill 可单独运行，由 `module-flow` 按用户目标关联调用。MasterGo 链接本身不会启动开发，出包完成也不会自动分析后端。
+
+| 目标示例 | 执行方式 |
+|---|---|
+| “整理这个外层容器，出设计文档，递归到三级” | 只运行 `mastergo-subdsl-package`，交付即结束 |
+| “根据设计包和现有模块，看看后端缺什么” | 只运行 `backend-gap-mock-plan`，交付方案即结束 |
+| “先整理设计，再出接口方案，先不开发” | 设计出包 → 后端分析 |
+| “按这个设计做功能，后端没好，先 Mock” | 按需出包 → 后端分析 → 原开发与验证阶段 |
+| “设计包和方案已有，继续开发” | 核对并复用产物，补齐实现与验证 |
+
+`auditDepth` 默认 2，子 DSL 已包含完整子树；3 及以上额外导出 `audit/` 中的局部节点。设计包仍需通过 `master-go-to-code` 生成 `dom-tree.json` / `svg-paths.json` 才能交给页面组装。编排字段和衔接细节见 [目标分流规则](module-flow/references/intent-routing.md)。
 
 ## Harness Hook（已落盘到 `hooks/`）
 
@@ -168,6 +186,8 @@ _shared/
 
 | 产物 | 生产者 | 消费者 | Schema |
 |---|---|---|---|
+| `manifest.json` / `ai-page-context.md` / 子 DSL | mastergo-subdsl-package | backend-gap-mock-plan / module-flow（选择场景） | `mastergo-subdsl-package/references/output-schema.md`（格式说明） |
+| `backend-interface-plan.md` | backend-gap-mock-plan | 开发任务的接口 / Mock 实现阶段 | `backend-gap-mock-plan/references/plan-template.md`（模板） |
 | `dom-tree.json` | master-go-to-code | frontend-page-design | `master-go-to-code/schemas/dom-tree-v1.schema.json` |
 | `svg-paths.json` | master-go-to-code | frontend-page-design | `master-go-to-code/schemas/svg-paths.schema.json` |
 | `define.ts / api.ts` | yapi-to-code | frontend-page-design | TS 类型系统 |
@@ -180,7 +200,7 @@ _shared/
 
 | MCP | 用于 |
 |---|---|
-| `mastergo-magic-mcp` | master-go-to-code |
+| `mastergo-magic-mcp` | master-go-to-code / mastergo-subdsl-package |
 | `yapi-auto-mcp` | yapi-to-code |
 | `aliyun-yunxiao` | yunxiao-bug-fix |
 | `playwright` | playwright-skill / auto-ui-explorer |
@@ -188,10 +208,10 @@ _shared/
 ## 文档导航
 
 - [Quick Start](#quick-start) — 5 分钟安装到你的项目
-- [使用手册](./使用手册.md) — 7 种触发场景的话术 + 行为契约
+- [使用手册](./使用手册.md) — 独立出包、后端方案及开发/验证触发示例
 - [文件树](./文件树.md) — 每个脚本和 schema 的具体作用
 - [docs/STATUS.md](./docs/STATUS.md) — 各 skill 版本和触发关键词速查
-- [docs/WORKFLOW.md](./docs/WORKFLOW.md) — 7 个场景的完整流程详解
+- [docs/WORKFLOW.md](./docs/WORKFLOW.md) — 文档目标分流及 7 个开发/验证场景详解
 - [docs/GLOSSARY.md](./docs/GLOSSARY.md) — 术语中英对照
 - [docs/DESIGN-DECISIONS.md](./docs/DESIGN-DECISIONS.md) — 架构设计思路与 trade-off 分析
 - [examples/](./examples/) — 示例产物（stage-report、dom-tree 片段）
@@ -202,7 +222,7 @@ _shared/
 
 1. 建 `<name>/` 目录，创建 `SKILL.md` + 可选 `references/` `schemas/` `scripts/`
 2. SKILL.md 主流程控制在合理范围（决策树+委托规则为主，详细规范拆 references/）
-3. frontmatter：`name` / `description` / `version`，description 禁止含 `---`
+3. frontmatter：`name` / `description`；版本可用仓库既有 `version` 或兼容 Codex 校验的 `metadata.version`，description 禁止含 `---`
 4. 末尾加 `## Changelog`
 5. 同步更新 [docs/STATUS.md](./docs/STATUS.md)
 

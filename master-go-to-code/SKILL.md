@@ -1,7 +1,7 @@
 ---
 name: master-go-to-code
-description: 从 MasterGo 设计稿 DSL 生成前端代码的视觉还原流水线。给定 MasterGo URL (含 fileId + layerId),产出 dom-tree.json + svg-paths.json + 图片资源,可独立使用或被 module-flow 编排。当用户提到"设计稿"、"MasterGo"、"还原 UI" 或贴出 mastergo.com 链接时主动触发。
-version: 2.3.0
+description: 从 MasterGo 设计稿 DSL 生成前端代码的视觉还原流水线。给定 MasterGo URL (含 fileId + layerId),产出 dom-tree.json + svg-paths.json + 图片资源,可独立使用或被 module-flow 编排。当用户要求设计稿转代码、还原 UI 或明确调用本 skill 时触发；仅整理设计文档或子 DSL 时使用 mastergo-subdsl-package，链接本身不表示开发目标。
+version: 2.3.1
 ---
 
 # Master-Go-to-Code · 视觉还原流水线
@@ -19,6 +19,8 @@ version: 2.3.0
 - 铁律 1-5 不变
 
 ## 决策
+
+只给 MasterGo 链接时先明确目标。仅出设计包或递归检查节点，转给 `mastergo-subdsl-package` 后结束；设计包已有时从 manifest 选择主场景链接，再按本流水线生成实现产物。当前脚本仍从链接获取数据，不支持直接把设计包当成 dom-tree。
 
 本 skill 专做"设计稿 → dom-tree.json + svg-paths.json + 图片资源"。**永远委托给 module-flow / frontend-page-design 完成 Vue 组装**(不在本 skill 直出)。
 
@@ -366,6 +368,9 @@ node .claude/skills/master-go-to-code/scripts/compare-tokens.mjs \
 ---
 
 ## Changelog
+
+### v2.3.1 (2026-11-20)
+- 收窄触发范围，明确设计文档任务交给独立出包 skill，开发时使用选定场景链接。
 
 - **v2.3.0(2026-05-21)** — Auto mode 增强 + Stage A.recall 产物锚点
   - 跳过"报告 + 等用户继续"检查点,`compare-tokens.mjs` 失败不阻断(verdict=fail 也继续)

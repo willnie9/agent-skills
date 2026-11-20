@@ -2,6 +2,13 @@
 
 > 本文件被 [SKILL.md](../SKILL.md) Step 4 引用。明确各 Stage 的输入参数、产出结构、失败模式。
 
+## 可选前置步骤（不属于 A/B/C/D Stage）
+
+- `mastergo-subdsl-package`：外层链接 + 截图目录 + 深度 → `manifest.json`、`ai-page-context.md`、来源与子 DSL、可选 `audit/`。
+- `backend-gap-mock-plan`：设计包或需求 + 项目源码 → `backend-interface-plan.md`。
+- 单独文档目标交付后结束；开发时复用匹配的包和方案，把主场景链接、关联交互及后端约定传给现有阶段。设计包不能直接替代 `dom-tree.json` / `svg-paths.json`，详见 [目标分流与衔接](intent-routing.md)。
+- 前置文档不生成 Stage A 报告，不伪造 pass 来绕过现有 gate。
+
 ## Stage A — master-go-to-code
 
 ### 输入契约
