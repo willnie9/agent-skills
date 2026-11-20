@@ -141,6 +141,22 @@ cp .claude/skills/playwright-skill/config/playwright-skill.config.example.json \
 
 `auditDepth` 默认 2，子 DSL 已包含完整子树；3 及以上额外导出 `audit/` 中的局部节点。设计包仍需通过 `master-go-to-code` 生成 `dom-tree.json` / `svg-paths.json` 才能交给页面组装。编排字段和衔接细节见 [目标分流规则](module-flow/references/intent-routing.md)。
 
+## 7 大场景暗号与人机交互规则
+
+> **硬性规则**：**只要用户没有明确指认 `场景1`~`场景7`（或 `#1`~`#7`），无条件直接触发 `AskUserQuestion` 确认场景**（严禁靠猜直接开跑，哪怕带了 `auto` 也必须先确认场景）。确认场景后，再按对应清单追问缺参及执行范围。
+
+| 场景 | 固定暗号 | 涉及 Skill 组合 | 必触发的人机交互 |
+|---|---|---|---|
+| **场景 1** *(新模块·有接口)* | `场景1` / `#1` / `新模块` | `module-flow` → `master-go-to-code` + `yapi-to-code` → `frontend-page-design` → `playwright-skill` | 缺设计稿/YApi 先追问（缺 YApi 问补接口还是改走 Mock）；参数齐后必问：**是否组装 Vue？是否浏览器验证？** |
+| **场景 2** *(新模块·先 Mock)* | `场景2` / `#2` / `Mock开发` | `module-flow` → *(可选)* `mastergo-subdsl-package` + `backend-gap-mock-plan` → `master-go-to-code` → `frontend-page-design` → `playwright-skill` | 必问：**是否先出设计包/后端缺口方案？Mock 还是静态？是否组装 Vue 及浏览器验证？** |
+| **场景 3** *(只出前置文档)* | `场景3` / `#3` / `只出文档` | `mastergo-subdsl-package` / `backend-gap-mock-plan` | 必问：**只出设计包 / 只出后端方案 / 两个都出？截图目录与细查深度？**（出完即停） |
+| **场景 4** *(老模块迭代改造)* | `场景4` / `#4` / `增量` / `迭代` / `重构` | `module-flow` → `playwright-skill`(定位) → `master-go-to-code` + *(可选)* `yapi-to-code` → `frontend-page-design` → `playwright-skill` | 必问：**模块名？改造方式（增量/迭代/重构）？有无新接口？改完是否浏览器回归？** |
+| **场景 5** *(纯接口/换真接口)* | `场景5` / `#5` / `只转接口` / `换真接口` | `yapi-to-code` + *(可选)* `backend-gap-mock-plan` + `playwright-skill` | 必问：**仅生成 `define.ts/api.ts`，还是对照方案替换现有 Mock？是否浏览器联调？** |
+| **场景 6** *(修 Bug 闭环)* | `场景6` / `#6` / `修bug` | `yunxiao-bug-fix`*(可选)* + `playwright-skill` | 必问：**有无云效单号（走云效还是纯本地修）？修完是否开浏览器验真？** |
+| **场景 7** *(独立测试/E2E)* | `场景7` / `#7` / `测一下` / `E2E` | `playwright-skill` / `auto-ui-explorer` | 必问：**用 `playwright-skill` 临时点检页面，还是用 `auto-ui-explorer` 跑模块 E2E 回归？目标路由/模块？** |
+
+完整交互协议与阶段门禁见 [module-flow/SKILL.md](./module-flow/SKILL.md)。
+
 ## Harness Hook（已落盘到 `hooks/`）
 
 `harness` 层强制执行的 6 个 hook，注册在项目根 `.claude/settings.json`：
