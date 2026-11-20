@@ -8,40 +8,23 @@ version: 2.3.0
 
 > 本 skill 调度所有下游 skill。所有项目结构信息从 `.claude/skills/project.config.json` 读取,`<config.xxx>` 占位指向该配置。
 
-## 目标分流（优先于开发场景、自检和 Auto Mode）
+## 7 大场景路由与人机交互协议（触发暗号 + 必问确认）
 
-明确点名 skill 或明确限定产物时，按该范围直接执行；`auto` 只改变交互节奏，不扩展范围。只给链接、目标不明时询问目标，不默认创建模块。
+> **核心原则**：任何场景入口（除非显式附带 `auto` 暗号）都**必须先通过 `AskUserQuestion` 完成人机交互确认**——缺参数就追问参数，参数齐了也要先确认执行范围（如是否组装 Vue、是否浏览器验证），用户确认后再正式开工！
 
-| 用户目标 | 调用方式 | 完成边界 |
-|---|---|---|
-| 整理设计稿 / 子 DSL / 设计文档 / 递归细查 | `mastergo-subdsl-package` 独立执行 | 设计包交付即结束 |
-| 后端缺口 / 接口方案 / Mock 接入规划 | `backend-gap-mock-plan` 独立执行 | 方案交付即结束，可直接读需求和代码 |
-| 整理设计并出后端方案 | `mastergo-subdsl-package` → `backend-gap-mock-plan` | 两份文档交付即结束 |
-| 完整开发 / 新模块 / 增量 / 迭代 / 重构 | 按需准备设计包、分析后端，再进入下方开发场景 | 在用户指定的开发和验证范围内完成 |
-| 仅 YApi 对接 / 浏览器操作 / E2E / 修 Bug | 对应独立 skill | 不强制进入模块开发 |
+### 场景暗号与触发对照表
 
-串联规则、输入字段、已有产物复用和 Stage A 衔接见 [references/intent-routing.md](references/intent-routing.md)。设计包不是 `dom-tree.json`，两个新增 skill 是可选前置能力，不新增 A/B/C/D gate。
+| 场景编号 | 固定暗号 / 触发条件 | 涉及 Skill 组合 | 必触发的人机交互（缺参追问 + 范围确认） |
+|---|---|---|---|
+| **场景 1**<br>*(全新模块·有接口)* | 暗号：`场景1` / `#1` / `新模块`<br>或：给了 MasterGo + YApi | `module-flow` → `master-go-to-code` + `yapi-to-code` → `frontend-page-design` → `playwright-skill` | 1. 缺 MasterGo → 追问设计稿链接<br>2. 缺 YApi → 追问“补 YApi 还是改走场景 2 Mock？”<br>3. 参数齐后必问：**① 是否组装 Vue 页面？② 是否做浏览器验证？** |
+| **场景 2**<br>*(全新模块·先 Mock)* | 暗号：`场景2` / `#2` / `Mock开发`<br>或：给了 MasterGo（无 YApi） | `module-flow` → *(可选)* `mastergo-subdsl-package` + `backend-gap-mock-plan` → `master-go-to-code` → `frontend-page-design` → `playwright-skill` | 1. 缺 MasterGo → 追问设计稿链接<br>2. 必问：**① 是否先出设计包/后端缺口方案？② 数据走 Mock 还是静态？③ 是否组装 Vue 及浏览器验证？** |
+| **场景 3**<br>*(只出前置文档)* | 暗号：`场景3` / `#3` / `只出文档`<br>或：说“整理设计稿/后端缺口” | `mastergo-subdsl-package` / `backend-gap-mock-plan`（可单跑或串联） | 1. 必问：**① 只出设计包 / 只出后端方案 / 两个都出？② 若出设计包，截图目录在哪、细查深度几级？**（出完即停，不写代码） |
+| **场景 4**<br>*(老模块迭代改造)* | 暗号：`场景4` / `#4` / `增量` / `迭代` / `重构`<br>或：指定现有模块改造 | `module-flow` → `playwright-skill`(定位) → `master-go-to-code` + *(可选)* `yapi-to-code` → `frontend-page-design` → `playwright-skill` | 1. 缺模块名 → 追问目标模块<br>2. 必问：**① 改造方式（增量加组件 / 局部迭代 / 整体重构）？② 是否有新接口？③ 改完是否跑浏览器回归？** |
+| **场景 5**<br>*(纯接口/换 Mock)* | 暗号：`场景5` / `#5` / `只转接口` / `换真接口`<br>或：只给了 YApi 链接 | `yapi-to-code` + *(可选)* `backend-gap-mock-plan` + `playwright-skill` | 1. 缺 YApi → 追问 YApi 链接/项目 ID<br>2. 必问：**① 仅生成 `define.ts/api.ts`，还是对照后端方案批量替换现有 Mock？② 是否浏览器联调验真？** |
+| **场景 6**<br>*(修 Bug 闭环)* | 暗号：`场景6` / `#6` / `修bug`<br>或：给了云效单号 / 报错现象 | `yunxiao-bug-fix`*(可选)* + `playwright-skill` | 1. 缺单号或问题描述 → 追问<br>2. 必问：**① 是否有云效单号（走云效拉单+回帖）还是纯本地修？② 修完是否开浏览器验真？** |
+| **场景 7**<br>*(独立测试/E2E)* | 暗号：`场景7` / `#7` / `测一下` / `E2E`<br>或：只要求点检页面/回归 | `playwright-skill` / `auto-ui-explorer` | 1. 必问：**① 只用 `playwright-skill` 临时点检页面，还是用 `auto-ui-explorer` 跑模块全量/增量 E2E 回归？② 目标路由或模块名？** |
 
-## 开发入口决策(5 个场景)
-
-以下仅在目标是开发时使用；设计出包和后端方案任务不进入本节。
-
-```
-用户输入
-  │
-  ├─ mastergo URL + 有 yapi 信息 + 没说"xxx 模块" ──→ 场景 1 完整新模块(设计稿+接口)
-  │
-  ├─ mastergo URL + 没 yapi + 没说"xxx 模块"     ──→ 场景 2 完整新模块(无接口)
-  │     问"数据策略 A(mock)/D(静态)?",auto 默认 A
-  │
-  ├─ mastergo URL + "xxx 模块 增量"               ──→ 场景 3 增量(现有模块加东西)
-  ├─ mastergo URL + "xxx 模块 迭代"               ──→ 场景 4 迭代(现有模块改一部分)
-  ├─ mastergo URL + "xxx 模块 重构"               ──→ 场景 5 重构(现有模块整个重写)
-  │     场景 3/4/5 必跑 Step 0.5 e2e 定位
-  │
-  ├─ 只有 yapi URL,没 mastergo                    ──→ 不走 module-flow,转给 yapi-to-code 单跑
-  └─ 自然语言含"批量做 N 个"                     ──→ 拒绝,一次只跑一个完整任务
-```
+> 串联规则、输入字段、已有产物复用和 Stage A 衔接见 [references/intent-routing.md](references/intent-routing.md)。明确点名独立 skill 时直接单跑；`auto` 暗号仅跳过中间阶段确认，**不跳过“意图不明/缺关键输入”的必问检查**。
 
 ### 场景行为对比
 
