@@ -19,6 +19,7 @@ const WHITELIST_PATTERNS = [
   /(schema|精修|validate).*?(fail|失败|错误)/i,
   /(dev server|开发服务器|3000).*?(未启动|没起|connection)/i,
   /(e2e|页面).*?(无法打开|进不去|404|未登录)/i,
+  /(场景\s*[1-7]|确认.*场景|意图不明|是否按.*执行)/i,
 ]
 
 function flatten(input) {
